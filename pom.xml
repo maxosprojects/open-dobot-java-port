@@ -61,6 +61,35 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
+
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+            <execution>
+                <id>generateArduinoCode</id>
+                <goals>
+                    <goal>java</goal>
+                </goals>
+
+            </execution>
+        </executions>
+        <configuration>
+            <mainClass>org.omilab.omirob.ArduinoCodeGen</mainClass>
+            <arguments>
+                <argument>${project.build.directory}/generated-sources/Arduino/</argument>
+            </arguments>
+        </configuration>
+    </plugin>
         </plugins>
     </build>
+
+
+    <repositories>
+        <repository>
+            <id>sparetimelabs</id>
+            <name>sparetimelabs</name>
+            <url>http://www.sparetimelabs.com/maven2</url>
+        </repository>
+    </repositories>
 </project>

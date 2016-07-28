@@ -1,5 +1,6 @@
 package org.omilab.omirob.tinyrpc;
 
+import org.omilab.omirob.ArduinoCodeGen;
 import org.omilab.omirob.codegen.TinyRPCMethod;
 import org.omilab.omirob.codegen.Tools;
 import purejavacomm.*;
@@ -37,7 +38,7 @@ public class TinyRpcHandler implements InvocationHandler {
     }
 
     public static Object createHandler(Class clazz, CommPortIdentifier portid) throws PortInUseException, IOException, UnsupportedCommOperationException {
-        Object o = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{clazz}, new TinyRpcHandler(portid));
+        Object o = Proxy.newProxyInstance(ArduinoCodeGen.class.getClassLoader(), new Class[]{clazz}, new TinyRpcHandler(portid));
         return o;
     }
 
