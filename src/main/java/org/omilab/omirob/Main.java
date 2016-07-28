@@ -1,5 +1,8 @@
 package org.omilab.omirob;
 
+import com.sun.net.httpserver.HttpServer;
+import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.omilab.omirob.codegen.DispatchGen;
 import org.omilab.omirob.codegen.HeaderGen;
 import org.omilab.omirob.tinyrpc.TinyRpcHandler;
@@ -9,7 +12,9 @@ import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Enumeration;
 
 /**
@@ -20,11 +25,11 @@ public class Main {
 
     public static void main(String[] args){
 
-        String header = HeaderGen.generate(IRobot.class);
+        new Freemarker().init();
+        URI baseUri = UriBuilder.fromUri("http://0.0.0.0/").port(9998).build();
+        ResourceConfig config = new ResourceConfig(Service.class);
+        HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
 
-        System.out.println(header);
-        String dispatcher = DispatchGen.generate(IRobot.class);
-        System.out.println(dispatcher);
 
         String portname="COM19";
         CommPortIdentifier portid = null;
