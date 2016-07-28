@@ -68,6 +68,7 @@
         <executions>
             <execution>
                 <id>generateArduinoCode</id>
+                <phase>compile</phase>
                 <goals>
                     <goal>java</goal>
                 </goals>
