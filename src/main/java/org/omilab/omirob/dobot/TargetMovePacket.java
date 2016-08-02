@@ -6,14 +6,14 @@ import java.nio.ByteBuffer;
  * Created by Martin on 28.07.2016.
  */
 public class TargetMovePacket {
-    float x;
-    float y;
-    float z;
-    float rHead;
-    float isGrab;
-    float movingMode;
-    float gripperValue;
-    float pauseTime;
+    public float x;
+    public float y;
+    public float z;
+    public float rHead;
+    public float isGrab;
+    public float movingMode;
+    public float gripperValue;
+    public float pauseTime;
 
 
     public static ByteBuffer write(ByteBuffer b, TargetMovePacket tmp) {
