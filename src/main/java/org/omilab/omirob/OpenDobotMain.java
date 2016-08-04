@@ -29,7 +29,7 @@ public class OpenDobotMain {
         //OpenDobotDriver dobot = new OpenDobotDriver(portname);
         try {
             DobotSDK db = new DobotSDK(115200, "COM22", false, false, 1000);
-            db.moveWithSpeed(0, 0, 0, 50, 50, 1000);
+            db.moveWithSpeed(0, 0, 0, 10, 5, 1000);
         } catch (IOException e) {
             e.printStackTrace();
         }

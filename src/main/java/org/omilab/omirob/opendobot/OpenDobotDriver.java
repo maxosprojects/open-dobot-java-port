@@ -135,6 +135,7 @@ public class OpenDobotDriver {
         byte control = (byte) ((j1dir & 0x01) |
                 ((j2dir & 0x01) << 1) |
                 ((j3dir & 0x01) << 2));
+        logger.debug(String.format("j1dir: %d, j2dir: %d, j3dir: %d", j1dir, j2dir, j3dir));
         //while (trys>0) {
             sendcommand(CMD_STEPS);
             writelong(j1);

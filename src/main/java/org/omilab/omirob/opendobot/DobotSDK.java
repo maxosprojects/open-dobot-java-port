@@ -343,7 +343,7 @@ public class DobotSDK {
         int accelSlices = 0;
         float timeToAccel = 0;
         float timeFlat = 0;
-        float flatSlices = 0;
+        int flatSlices = 0;
 
         if (distToReachMaxSpeed * 2.0 >= distance) {
             timeToAccel = (float) Math.sqrt(distance / accel);
@@ -359,7 +359,7 @@ public class DobotSDK {
             timeToAccel = maxVel / accel;
             accelSlices = (int) (timeToAccel * 50.0f);
             timeFlat = (float) ((distance - distToReachMaxSpeed * 2.0) / maxVel);
-            flatSlices = timeFlat * 50.0f;
+            flatSlices = (int) (timeFlat * 50.0f);
         }
 
         slices = (int) (accelSlices * 2.0 + flatSlices);
@@ -443,7 +443,7 @@ public class DobotSDK {
             leftStepsFront = r[5];
 
 
-            logger.debug(String.format("moved %d %d $d steps", movedStepsBase, movedStepsRear, movedStepsFront));
+            logger.debug(String.format("moved %d %d %d steps", movedStepsBase, movedStepsRear, movedStepsFront));
             logger.debug(String.format("leftovers %.2f %.2f %.2f", leftStepsBase, leftStepsRear, leftStepsFront));
 
             commands += 1;
