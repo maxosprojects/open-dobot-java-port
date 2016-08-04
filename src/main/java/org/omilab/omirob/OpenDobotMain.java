@@ -3,30 +3,20 @@ package org.omilab.omirob;
 import com.sun.net.httpserver.HttpServer;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.omilab.omirob.dobot.TargetMovePacket;
-import org.omilab.omirob.opendobot.OpenDobotDriver;
+import org.omilab.omirob.opendobot.DobotSDK;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import purejavacomm.CommPortIdentifier;
-import purejavacomm.PortInUseException;
-import purejavacomm.SerialPort;
-import purejavacomm.UnsupportedCommOperationException;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
-import java.nio.ByteBuffer;
-import java.util.Enumeration;
+
 
 /**
  * Created by Martin on 22.07.2016.
  */
 public class OpenDobotMain {
     private final static Logger logger = LoggerFactory.getLogger(OpenDobotMain.class);
-
-
-
 
     public static void main(String[] args){
 
@@ -35,11 +25,13 @@ public class OpenDobotMain {
         ResourceConfig config = new ResourceConfig(Service.class);
         HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
 
-
-        String portname="COM22";
-        OpenDobotDriver dobot = new OpenDobotDriver(portname);
-
-
-
+        //String portname="COM22";
+        //OpenDobotDriver dobot = new OpenDobotDriver(portname);
+        try {
+            DobotSDK db = new DobotSDK(115200, "COM22", false, false, 1000);
+            db.moveWithSpeed(0, 0, 0, 50, 50, 1000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

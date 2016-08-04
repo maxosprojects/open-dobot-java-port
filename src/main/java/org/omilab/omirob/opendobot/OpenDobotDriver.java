@@ -1,5 +1,7 @@
 package org.omilab.omirob.opendobot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
@@ -11,12 +13,17 @@ import java.io.OutputStream;
 
 import java.util.Enumeration;
 
+import static org.omilab.omirob.opendobot.DobotKinematics.piHalf;
+
 /**
  * Created by Martin on 02.08.2016.
  */
 public class OpenDobotDriver {
+    private final static Logger logger = LoggerFactory.getLogger(OpenDobotDriver.class);
+
     private final int toolRotation=0;
     private final int gripper=480;
+    int stepCoeff = 500000;
     private OutputStream out;
     private InputStream in;
     private int crc=0xffff;
@@ -33,7 +40,11 @@ public class OpenDobotDriver {
     private final static byte CMD_PUMP_ON = 10;
     private final static byte CMD_VALVE_ON = 11;
     private final static byte CMD_BOARD_VERSION = 12;
-
+    int stopSeq=0x0242f000;
+    public boolean ramps=false;
+    public int stepCoeffOver2;
+    public int freqCoeff;
+    private boolean fpga=true;
 
     private  void crc_clear(){
         crc = 0xffff;
@@ -49,12 +60,22 @@ public class OpenDobotDriver {
         }
     }
 
-
     private void writebyte(byte val) throws IOException {
         crc_update(val);
         out.write(val&0xFF);
     }
 
+    private void writeword(short val) throws IOException {
+        writebyte((byte) ((val&0xFF00)>>8));
+        writebyte((byte) (val&0xFF));
+    }
+
+    private void writelong(int val) throws IOException {
+        writebyte((byte) ((val&0xFF000000)>>24));
+        writebyte((byte) ((val&0xFF0000)>>16));
+        writebyte((byte) ((val&0xFF00)>>8));
+        writebyte((byte) (val&0xFF));
+    }
 
     private byte readbyte() throws IOException {
         int data=in.read();
@@ -63,9 +84,17 @@ public class OpenDobotDriver {
         return (byte) (data&0xFF);
     }
 
+    private byte readword() throws IOException {
+        byte val1 = readbyte();
+        byte val2 = readbyte();
+        return (byte) ((val1&0xFF)<<8|(val2&0xFF));
+    }
+
     private void sendcommand(byte command) throws IOException {
-            crc_clear();
-            writebyte(command);
+        crc_clear();
+        while(in.available()>0)
+            in.read();
+        writebyte(command);
     }
 
     private byte[] boardVersion() throws IOException {
@@ -92,6 +121,61 @@ public class OpenDobotDriver {
         trys -= 1;
         }
         return null;
+    }
+
+    private int stepsToCmdVal(int steps) {
+        steps=Math.abs(steps);
+        if (steps == 0)
+            return stopSeq;
+        return Integer.reverseBytes(stepCoeff / steps);
+    }
+
+    public byte steps(int j1, int j2, int j3, int j1dir, int j2dir, int j3dir, short servoGrab, short servoRot) throws IOException {
+        int trys=1;
+        byte control = (byte) ((j1dir & 0x01) |
+                ((j2dir & 0x01) << 1) |
+                ((j3dir & 0x01) << 2));
+        //while (trys>0) {
+            sendcommand(CMD_STEPS);
+            writelong(j1);
+            writelong(j2);
+            writelong(j3);
+            writebyte(control);
+            writeword(Short.reverseBytes(servoGrab));
+            writeword(Short.reverseBytes(servoRot));
+            writechecksum();
+            out.flush();
+            byte res = readbyte();
+            int[] crcword = readchecksumword();
+            if (crcword[0] != 1)
+                if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                    return res;
+            return res;
+        //trys--;
+        //}
+        //logger.warn("CRC error");
+        //return -1;
+    }
+
+    public void steps(int j1, int j2, int j3, short servoGrab, short servoRot) throws IOException {
+        int j1dir=(j1<0?1:0);
+        int j2dir=(j2<0?1:0);
+        int j3dir=(j3<0?1:0);
+        byte control = (byte)   ((j1dir & 0x01) |
+                                ((j2dir & 0x01) << 1) |
+                                ((j3dir & 0x01) << 2));
+        sendcommand(CMD_STEPS);
+        writelong(stepsToCmdVal(j1));
+        writelong(stepsToCmdVal(j2));
+        writelong(stepsToCmdVal(j3));
+        writebyte(control);
+        writeword(Short.reverseBytes(servoGrab));
+        writeword(Short.reverseBytes(servoRot));
+        writechecksum();
+        byte res=readbyte();
+        if((crc & 0xFFFF)!= (crc & 0xFFFF)) {
+            throw new RuntimeException("CRC error");
+        }
     }
 
 //    private byte[] writeread(byte cmd, int length) throws IOException {
@@ -135,34 +219,9 @@ public class OpenDobotDriver {
 
 
     private void writechecksum() throws IOException {
-        out.write((crc>>8)&0xFF);
+        out.write((crc&0xFF00)>>8);
         out.write(crc&0xFF);
     }
-
-
-
-/*
-    private void write(int cmd,List<> write_commands=list()) {
-        int trys = 10;
-		while (trys>0) {
-            sendcommand(cmd)
-
-            for c in write_commands:
-    c[0](c[1])
-
-            self._writechecksum()
-            self._port.send()
-    crc = self._readchecksumword()
-            if crc[0]:
-            if (crc&0xFFFF == (crc[1]&0xFFFF):
-            return true;
-            trys -= 1;
-        }
-            return false;
-
-    }
-
-*/
 
 
     public OpenDobotDriver(String portname){
@@ -186,7 +245,9 @@ public class OpenDobotDriver {
             port.setDTR(true);
             port.setRTS(true);
             Thread.sleep(1000);
-            boardVersion();
+            byte[] bv=boardVersion();
+            System.out.println(bv[0]);
+
 
         } catch (PortInUseException e1) {
             e1.printStackTrace();
@@ -200,4 +261,67 @@ public class OpenDobotDriver {
 
 
     }
+
+    public boolean isFpga() {
+        return fpga;
+    }
+
+    public CmdVal stepsToCmdValFloat(float steps) {
+
+        //        Converts number of steps for dobot to do in 20ms into a command value that dobot
+        //        takes to set the stepping frequency.
+        //
+        //        @param steps - float number of steps; float to minimize error and have finer control
+        //		@return tuple (command_value, leftover), where leftover is the fractioned steps that don't fit
+        //        into 20ms interval a command runs for
+        //        '''
+        if (Math.abs(steps) < 0.01)
+            return (new CmdVal(stopSeq, 0, 0.0f));
+		// "round" makes leftover negative in certain cases and causes backlash compensation to oscillate.
+		// actualSteps = long(round(steps))
+        int actualSteps = (int) steps;
+        if(actualSteps == 0)
+            return (new CmdVal(stopSeq, 0, steps));
+        int val = (int) (stepCoeff / actualSteps);
+        actualSteps = stepCoeff / val;
+        if (val == 0)
+            return new CmdVal(stopSeq, 0, steps);
+        return new CmdVal(Integer.reverseBytes(val), actualSteps, steps - actualSteps);
+    }
+
+    public short[] GetAccelerometers() throws IOException {
+
+//        '''
+//        Returns data aquired from accelerometers at power on.
+//        There are 17 reads in FPGA version and 20 reads in RAMPS version of each accelerometer
+//        that the firmware does and then averages the result before returning it here.
+
+//        '''
+        sendcommand(CMD_GET_ACCELS);
+        writechecksum();
+        short[] ret=new short[6];
+        for(int i=0;i<6;i++)
+            ret[i]=readword();
+        return ret;
+    }
+
+    public float accelToRadians(float val, float offset) {
+        try{
+            return (float) Math.asin((val - offset) / 493.56f);
+        }
+        catch (Exception e){
+            return piHalf;
+        }
+    }
+
+    public int freqToCmdVal(float freq) {
+//        '''
+//        Converts stepping frequency into a command value that dobot takes.
+//        '''
+        if (freq == 0)
+            return stopSeq;
+        return Integer.reverseBytes((int) ((freqCoeff) / freq));
+    }
+
+
 }
