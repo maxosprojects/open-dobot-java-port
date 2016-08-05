@@ -56,34 +56,34 @@ public class DobotKinematics {
     public static Angle3f anglesFromCoordinates(float x, float y, float z) {
         // Radius to the center of the tool.
         float radiusTool = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-        logger.debug("radiusTool", radiusTool);
+        logger.debug(String.format("radiusTool %f", radiusTool));
         // Radius to joint3.
         float radius = radiusTool - distanceTool;
-        logger.debug("radius", radius);
+        logger.debug(String.format("radius %f", radius));
         float baseAngle = (float) Math.atan2(y, x);
-        logger.debug("ik base angle", baseAngle);
+        logger.debug(String.format("ik base angle %f", baseAngle));
         // X coordinate of joint3.
         float jointX = (float) (radius * Math.cos(baseAngle));
-        logger.debug("jointX", jointX);
+        logger.debug(String.format("jointX %f", jointX));
         // Y coordinate of joint3.
         float jointY = (float) (radius * Math.sin(baseAngle));
-        logger.debug("jointY", jointY);
+        logger.debug(String.format("jointY %f", jointY));
         float actualZ = z - heightFromGround;
-        logger.debug("actualZ", actualZ);
+        logger.debug(String.format("actualZ %f", actualZ));
         // Imaginary segment connecting joint1 with joint2, squared.
         float hypotenuseSquared = (float) (Math.pow(actualZ, 2) + Math.pow(radius, 2));
         float hypotenuse = (float) Math.sqrt(hypotenuseSquared);
-        logger.debug("hypotenuse", hypotenuse);
-        logger.debug("hypotenuseSquared", hypotenuseSquared);
+        logger.debug(String.format("hypotenuse %f", hypotenuse));
+        logger.debug(String.format("hypotenuseSquared %f", hypotenuseSquared));
 
         float q1 = (float) Math.atan2(actualZ, radius);
-        logger.debug("q1", q1);
+        logger.debug(String.format("q1 %f", q1));
         float q2 = (float) Math.acos((lengthRearSquared - lengthFrontSquared + hypotenuseSquared) / (2.0 * lengthRearArm * hypotenuse));
-        logger.debug("q2", q2);
+        logger.debug(String.format("q2 %f", q2));
         float rearAngle = piHalf - (q1 + q2);
-        logger.debug("ik rear angle", rearAngle);
+        logger.debug(String.format("ik rear angle %f", rearAngle));
         float frontAngle = (float) (piHalf - (Math.acos((lengthRearSquared + lengthFrontSquared - hypotenuseSquared) / (2.0 * lengthRearArm * lengthFrontArm)) - rearAngle));
-        logger.debug("ik front angle", frontAngle);
+        logger.debug(String.format("ik front angle %f", frontAngle));
         return new Angle3f(baseAngle, rearAngle, frontAngle);
     }
 

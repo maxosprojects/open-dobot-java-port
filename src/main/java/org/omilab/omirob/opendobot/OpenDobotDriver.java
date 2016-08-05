@@ -79,7 +79,6 @@ public class OpenDobotDriver {
 
     private byte readbyte() throws IOException {
         int data=in.read();
-
         if(data<0)
                 throw new RuntimeException("readbyte()");
 
@@ -87,10 +86,20 @@ public class OpenDobotDriver {
         return (byte) (data&0xFF);
     }
 
-    private byte readword() throws IOException {
+    private short readword() throws IOException {
         byte val1 = readbyte();
         byte val2 = readbyte();
-        return (byte) ((val1&0xFF)<<8|(val2&0xFF));
+        return (short) ((val1&0xFF)<<8|(val2&0xFF));
+    }
+    private int readlong() throws IOException {
+        byte val1 = readbyte();
+        byte val2 = readbyte();
+        byte val3 = readbyte();
+        byte val4 = readbyte();
+        return (int) ((val1&0xFF)<<24|
+                (val2&0xFF)<<16|
+                (val3&0xFF)<<8|
+                (val4&0xFF));
     }
 
     private void sendcommand(byte command) throws IOException {
@@ -121,9 +130,9 @@ public class OpenDobotDriver {
             if (crcword[0]!=1)
                 if((crc&0xFFFF) == (crcword[1]&0xFFFF))
                     return ret;
-        trys -= 1;
+            trys -= 1;
         }
-        return null;
+        throw new RuntimeException("CRC failed ");
     }
 
     public static int stepsToCmdVal(int steps) {
@@ -134,11 +143,12 @@ public class OpenDobotDriver {
     }
 
     public byte steps(int j1, int j2, int j3, int j1dir, int j2dir, int j3dir, short servoGrab, short servoRot) throws IOException {
-        int trys=1;
+        int trys=10;
         byte control = (byte) ((j1dir & 0x01) |
                 ((j2dir & 0x01) << 1) |
                 ((j3dir & 0x01) << 2));
         logger.debug(String.format("j1dir: %d, j2dir: %d, j3dir: %d", j1dir, j2dir, j3dir));
+        logger.debug(String.format("j1: %d, j2: %d, j3: %d", j1, j2, j3));
         while (trys>0) {
             sendcommand(CMD_STEPS);
             writelong(j1);
@@ -180,28 +190,44 @@ public class OpenDobotDriver {
             throw new RuntimeException("CRC error");
         }
     }
+    public void  setCounters(int base, int rear, int fore) throws IOException {
+        int trys=10;
+        while(trys>0)
+        {
+            sendcommand(CMD_SET_COUNTERS);
+            writelong(base);
+            writelong(rear);
+            writelong(fore);
+            writechecksum();
+            int[] crcword = readchecksumword();
+            if (crcword[0] != 1)
+                if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                    return;
+            trys--;
+        }
+        logger.warn("CRC error");
+    }
 
-//    private byte[] writeread(byte cmd, int length) throws IOException {
-//        int trys=10;
-//        while (trys>0) {
-//            sendcommand(cmd);
-//            writechecksum();
-//            out.flush();
-//            readbyte()
-//            byte[] ret=new byte[length];
-//            for (int i = 0; i < length; i++) {
-//                int val = in.read();
-//                ret[i] = (byte) (val & 0xFF);
-//                crc_update(ret[i]);
-//            }
-//            int[] crcword = readchecksumword();
-//            if (crcword[0]!=1)
-//                if((crc&0xFFFF) == (crcword[1]&0xFFFF))
-//                    return ret;
-//            trys -= 1;
-//        }
-//        return null;
-//    }
+    public Counters  getCounters() throws IOException {
+        int trys=10;
+        while(trys>0)
+        {
+            sendcommand(CMD_GET_COUNTERS);
+            writechecksum();
+            int base=readlong();
+            int rear=readlong();
+            int front=readlong();
+
+            Counters c=new Counters(front, rear, base);
+            int[] crcword = readchecksumword();
+            if (crcword[0] != 1)
+                if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                    return c;
+            trys--;
+        }
+        logger.warn("CRC error");
+        return null;
+    }
 
     public void PumpOn(boolean on) {
        // writebyte();
@@ -220,12 +246,10 @@ public class OpenDobotDriver {
         return ret;
     }
 
-
     private void writechecksum() throws IOException {
         out.write((crc&0xFF00)>>8);
         out.write(crc&0xFF);
     }
-
 
     public OpenDobotDriver(String portname){
         CommPortIdentifier portid = null;
@@ -305,17 +329,21 @@ public class OpenDobotDriver {
         short[] ret=new short[6];
         for(int i=0;i<6;i++)
             ret[i]=readword();
-        return ret;
+        int[] crcword = readchecksumword();
+        if (crcword[0] != 1)
+            if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                return ret;
+        throw new RuntimeException("CRC failed");
     }
 
     public float accelToRadians(float val, float offset) {
-        try{
-            return (float) Math.asin((val - offset) / 493.56f);
-        }
-        catch (Exception e){
+        float res= (float) Math.asin((val - offset) / 493.56f);
+        if(Float.isNaN(res))
             return piHalf;
-        }
+        return res;
     }
+
+
 
     public int freqToCmdVal(float freq) {
 //        '''

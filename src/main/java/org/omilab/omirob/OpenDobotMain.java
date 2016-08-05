@@ -27,26 +27,44 @@ public class OpenDobotMain {
         HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
 
         String portname="COM22";
+        //moveTest(portname);
+
+        try {
+            DobotSDK db = new DobotSDK(115200, portname, false, false, 1000);
+            db.moveWithSpeed(150f, -50, 100f, 35, 20, 1000);
+            db.moveWithSpeed(150f, 50, 100f, 35, 20, 1000);
+            db.moveWithSpeed(300f, 50, 100f, 35, 20, 1000);
+            db.moveWithSpeed(300f, -50, 100f, 35, 20, 1000);
+            db.moveWithSpeed(150f, -50, 100f, 35, 20, 1000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private static void moveTest(String portname){
         OpenDobotDriver dobot = new OpenDobotDriver(portname);
         try {
-            for(int i=0;i<100;i++) {
-                dobot.steps(OpenDobotDriver.stepsToCmdVal(10), 10, 0, 1, 0, 0, (short) 1000, (short) 1000);
+            for(int i=0;i<200;i++) {
+                while(true) {
+                    byte res = dobot.steps(OpenDobotDriver.stepsToCmdVal(10),
+                            OpenDobotDriver.stepsToCmdVal(10),
+                            OpenDobotDriver.stepsToCmdVal(10)
+                            , 0, 0, 0, (short) 1000, (short) 1000);
+                    if(res==1)
+                        break;
+                }
             }
-            Thread.sleep(5000);
-            for(int i=0;i<100;i++) {
-                dobot.steps(OpenDobotDriver.stepsToCmdVal(10), 0, 0, 0, 0, 0, (short) 1000, (short) 1000);
+            for(int i=0;i<200;i++) {
+                while(true) {
+                    byte res = dobot.steps(OpenDobotDriver.stepsToCmdVal(10),
+                            OpenDobotDriver.stepsToCmdVal(10),
+                            OpenDobotDriver.stepsToCmdVal(10)
+                            , 1, 1, 1, (short) 1000, (short) 1000);
+                    if(res==1)
+                        break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
-//
-//        try {
-//            DobotSDK db = new DobotSDK(115200, portname, false, false, 1000);
-//            db.moveWithSpeed(0, 0, 0, 10, 5, 1000);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 }

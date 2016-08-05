@@ -33,9 +33,9 @@ public class DobotSDK {
 // with 10:1 reduction ratio
     private static float stepperPlanetaryGearBoxMultiplier = 10.0f;
     private final float toolRotation;
-    private long frontSteps;
-    private long baseSteps;
-    private long rearSteps;
+    private float frontSteps;
+    private float baseSteps;
+    private float rearSteps;
     private int lastBaseDirection;
     private int lastRearDirection;
     private int lastFrontDirection;
@@ -84,17 +84,18 @@ public class DobotSDK {
     public void InitializeAccelerometers() throws IOException {
         logger.info("--=========--");
         logger.info("Initializing accelerometers");
+        float rearAngle = 0;
+        float frontAngle=0;
         if (driver.isFpga()) {
             // In FPGA v1.0 SPI accelerometers are read only when Arduino boots. The readings
             // are already available, so read once.
-            short[] ret = {0, 0, 0, 0, 0, 0, 0};
-            while (ret[0] == 0)
-                ret = driver.GetAccelerometers();
-            float accelRearX = ret[1];
-            float accelFrontX = ret[4];
-            float rearAngle = piHalf - driver.accelToRadians(accelRearX, accelOffsets[0]);
-            float frontAngle = driver.accelToRadians(accelFrontX, accelOffsets[1]);
-            logger.info("Initializing accelerometers result",rearAngle, frontAngle);
+            short[] ret = {0, 0, 0, 0, 0, 0};
+            ret = driver.GetAccelerometers();
+            float accelRearX = ret[0];
+            float accelFrontX = ret[3];
+             rearAngle = piHalf - driver.accelToRadians(accelRearX, accelOffsets[0]);
+             frontAngle = driver.accelToRadians(accelFrontX, accelOffsets[1]);
+            logger.info(String.format("Initializing accelerometers result %.2f %.2f",rearAngle, frontAngle));
 
         } else {
             //    // In RAMPS accelerometers are on I2C bus and can be read at any time. We need to
@@ -142,31 +143,20 @@ public class DobotSDK {
             //
             //    rearAngle =0
             //    frontAngle =-piHalf
-            //    self._baseSteps =
-            //
-            //    long(0)
-            //
-            //    self._rearSteps =
-            //
-            //    long((rearAngle /piTwo) *rearArmActualStepsPerRevolution +0.5)
-            //    self._frontSteps =
-            //
-            //    long((frontAngle /piTwo) *frontArmActualStepsPerRevolution +0.5)
-            //            self._driver.SetCounters(self._baseSteps,self._rearSteps,self._frontSteps)
-            //
-            //    print("Initializing with steps:",self._baseSteps, self._rearSteps, self._frontSteps)
-            //
-            //    print("Reading back what was set:",self._driver.GetCounters())
-            //    currBaseAngle =piTwo *self._baseSteps /
-            //    baseActualStepsPerRevolution
-            //            currRearAngle = piHalf - piTwo * self._rearSteps / rearArmActualStepsPerRevolution
-            //    currFrontAngle =piTwo *self._frontSteps /
-            //
-            //    frontArmActualStepsPerRevolution
-            //    print("" Current estimated coordinates:"", self._kinematics.coordinatesFromAngles(currBaseAngle, currRearAngle, currFrontAngle))
-            //
-            //    print("--=========--")
         }
+        baseSteps =0;
+        rearSteps = (float) ((rearAngle /piTwo) *rearArmActualStepsPerRevolution +0.5);
+        frontSteps = (float) ((frontAngle /piTwo) *frontArmActualStepsPerRevolution +0.5);
+        driver.setCounters((int)baseSteps,(int)rearSteps,(int)frontSteps);
+        logger.info(String.format("Initializing with steps: %f %f %f", baseSteps, rearSteps, frontSteps));
+        Counters counters = driver.getCounters();
+        logger.info(String.format("Reading back what was set: %d %d %d",counters.base,counters.rear,counters.front));
+        float currBaseAngle =piTwo * baseSteps /  baseActualStepsPerRevolution;
+        float currRearAngle = piHalf - piTwo * rearSteps / rearArmActualStepsPerRevolution;
+        float currFrontAngle =piTwo * frontSteps / frontArmActualStepsPerRevolution;
+        Point3f coords = kinematics.coordinatesFromAngles(currBaseAngle, currRearAngle, currFrontAngle);
+        logger.info(String.format("Current estimated coordinates: %.2f %.2f %.2f",coords.x, coords.y, coords.z));
+
     }
 
     private void _moveArmToAngles() {
@@ -221,24 +211,24 @@ public class DobotSDK {
 //    ret = self._driver.Steps(base, rear, front, baseDir, rearDir, frontDir)
     }
 
-    private int[] moveToAnglesSlice(float baseAngle, float rearArmAngle, float frontArmAngle, int toolRotation) throws IOException {
+    private float[] moveToAnglesSlice(float baseAngle, float rearArmAngle, float frontArmAngle, int toolRotation) throws IOException {
         float baseStepLocation = baseAngle * baseActualStepsPerRevolution / piTwo;
         float rearArmStepLocation = abs(rearArmAngle * rearArmActualStepsPerRevolution / piTwo);
         float frontArmStepLocation = abs(frontArmAngle * frontArmActualStepsPerRevolution / piTwo);
 
-        logger.debug("Base Step Location", baseStepLocation);
-        logger.debug("Rear Arm Step Location", rearArmStepLocation);
-        logger.debug("Front Arm Step Location", frontArmStepLocation);
-        logger.debug("self._baseSteps", baseSteps);
-        logger.debug("self._rearSteps", rearSteps);
-        logger.debug("self._frontSteps", frontSteps);
+        logger.debug(String.format("Base Step Location %f", baseStepLocation));
+        logger.debug(String.format("Rear Arm Step Location %f", rearArmStepLocation));
+        logger.debug(String.format("Front Arm Step Location %f", frontArmStepLocation));
+        logger.debug(String.format("self._baseSteps %f", baseSteps));
+        logger.debug(String.format("self._rearSteps %f", rearSteps));
+        logger.debug(String.format("self._frontSteps %f", frontSteps));
         float baseDiff = baseStepLocation - baseSteps;
         float rearDiff = rearArmStepLocation - rearSteps;
         float frontDiff = frontArmStepLocation - frontSteps;
 
-        logger.debug("baseDiff", baseDiff);
-        logger.debug("rearDiff", rearDiff);
-        logger.debug("frontDiff", frontDiff);
+        logger.debug(String.format("baseDiff %f", baseDiff));
+        logger.debug(String.format("rearDiff %f", rearDiff));
+        logger.debug(String.format("frontDiff %f", frontDiff));
 
         int baseSign = 1;
         int rearSign = 1;
@@ -295,12 +285,13 @@ public class DobotSDK {
             }
             //}
         }
-        return new int[]{base.steps * baseSign,
-                rear.steps * rearSign,
-                front.steps * frontSign,
-                (int) (base.leftOver * baseSign),
-                (int) (rear.leftOver * rearSign),
-                (int) (front.leftOver * frontSign)};
+        return new float[]{
+            base.steps * baseSign,
+            rear.steps * rearSign,
+            front.steps * frontSign,
+            (base.leftOver * baseSign),
+            (rear.leftOver * rearSign),
+            (front.leftOver * frontSign)};
     }
 
     private int freqToCmdVal(float freq) {
@@ -432,18 +423,16 @@ public class DobotSDK {
 
             Angle3f angles = DobotKinematics.anglesFromCoordinates(nextX, nextY, nextZ);
 
-            Object ret = moveToAnglesSlice(angles.x, angles.y, angles.z, (int) toolRotation);
-
-            int[] r = moveToAnglesSlice(angles.x, angles.y, angles.z, (int) nextToolRotation);
-            int movedStepsBase = r[0];
-            int movedStepsRear = r[1];
-            int movedStepsFront = r[2];
+            float[] r = moveToAnglesSlice(angles.x, angles.y, angles.z, (int) nextToolRotation);
+            float movedStepsBase = r[0];
+            float movedStepsRear = r[1];
+            float movedStepsFront = r[2];
             leftStepsBase = r[3];
             leftStepsRear = r[4];
             leftStepsFront = r[5];
 
 
-            logger.debug(String.format("moved %d %d %d steps", movedStepsBase, movedStepsRear, movedStepsFront));
+            logger.debug(String.format("moved %.2f %.2f %.2f steps", movedStepsBase, movedStepsRear, movedStepsFront));
             logger.debug(String.format("leftovers %.2f %.2f %.2f", leftStepsBase, leftStepsRear, leftStepsFront));
 
             commands += 1;
