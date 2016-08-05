@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.omilab.omirob.opendobot.DobotSDK;
+import org.omilab.omirob.opendobot.OpenDobotDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +26,27 @@ public class OpenDobotMain {
         ResourceConfig config = new ResourceConfig(Service.class);
         HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
 
-        //String portname="COM22";
-        //OpenDobotDriver dobot = new OpenDobotDriver(portname);
+        String portname="COM22";
+        OpenDobotDriver dobot = new OpenDobotDriver(portname);
         try {
-            DobotSDK db = new DobotSDK(115200, "COM22", false, false, 1000);
-            db.moveWithSpeed(0, 0, 0, 10, 5, 1000);
+            for(int i=0;i<100;i++) {
+                dobot.steps(OpenDobotDriver.stepsToCmdVal(10), 10, 0, 1, 0, 0, (short) 1000, (short) 1000);
+            }
+            Thread.sleep(5000);
+            for(int i=0;i<100;i++) {
+                dobot.steps(OpenDobotDriver.stepsToCmdVal(10), 0, 0, 0, 0, 0, (short) 1000, (short) 1000);
+            }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+//
+//        try {
+//            DobotSDK db = new DobotSDK(115200, portname, false, false, 1000);
+//            db.moveWithSpeed(0, 0, 0, 10, 5, 1000);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }

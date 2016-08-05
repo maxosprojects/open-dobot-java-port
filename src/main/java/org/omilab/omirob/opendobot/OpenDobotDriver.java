@@ -23,7 +23,7 @@ public class OpenDobotDriver {
 
     private final int toolRotation=0;
     private final int gripper=480;
-    int stepCoeff = 500000;
+    static int stepCoeff = 500000;
     private OutputStream out;
     private InputStream in;
     private int crc=0xffff;
@@ -40,7 +40,7 @@ public class OpenDobotDriver {
     private final static byte CMD_PUMP_ON = 10;
     private final static byte CMD_VALVE_ON = 11;
     private final static byte CMD_BOARD_VERSION = 12;
-    int stopSeq=0x0242f000;
+    static int stopSeq=0x0242f000;
     public boolean ramps=false;
     public int stepCoeffOver2;
     public int freqCoeff;
@@ -79,8 +79,11 @@ public class OpenDobotDriver {
 
     private byte readbyte() throws IOException {
         int data=in.read();
+
         if(data<0)
                 throw new RuntimeException("readbyte()");
+
+        crc_update((byte) (data&0xFF));
         return (byte) (data&0xFF);
     }
 
@@ -123,7 +126,7 @@ public class OpenDobotDriver {
         return null;
     }
 
-    private int stepsToCmdVal(int steps) {
+    public static int stepsToCmdVal(int steps) {
         steps=Math.abs(steps);
         if (steps == 0)
             return stopSeq;
@@ -136,7 +139,7 @@ public class OpenDobotDriver {
                 ((j2dir & 0x01) << 1) |
                 ((j3dir & 0x01) << 2));
         logger.debug(String.format("j1dir: %d, j2dir: %d, j3dir: %d", j1dir, j2dir, j3dir));
-        //while (trys>0) {
+        while (trys>0) {
             sendcommand(CMD_STEPS);
             writelong(j1);
             writelong(j2);
@@ -151,11 +154,10 @@ public class OpenDobotDriver {
             if (crcword[0] != 1)
                 if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
                     return res;
-            return res;
-        //trys--;
-        //}
-        //logger.warn("CRC error");
-        //return -1;
+            trys--;
+        }
+        logger.warn("CRC error");
+        return -1;
     }
 
     public void steps(int j1, int j2, int j3, short servoGrab, short servoRot) throws IOException {
