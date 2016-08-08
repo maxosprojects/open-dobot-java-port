@@ -21,24 +21,39 @@ public class OpenDobotMain {
 
     public static void main(String[] args){
 
-        new Freemarker().init();
-        URI baseUri = UriBuilder.fromUri("http://0.0.0.0/").port(9998).build();
-        ResourceConfig config = new ResourceConfig(Service.class);
-        HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
-
         String portname="COM22";
-        //moveTest(portname);
-
         try {
             DobotSDK db = new DobotSDK(115200, portname, false, false, 1000);
-            db.moveWithSpeed(150f, -50, 100f, 35, 20, 1000);
-            db.moveWithSpeed(150f, 50, 100f, 35, 20, 1000);
-            db.moveWithSpeed(300f, 50, 100f, 35, 20, 1000);
-            db.moveWithSpeed(300f, -50, 100f, 35, 20, 1000);
-            db.moveWithSpeed(150f, -50, 100f, 35, 20, 1000);
+            new Freemarker().init();
+            URI baseUri = UriBuilder.fromUri("http://0.0.0.0/").port(9998).build();
+            ResourceConfig config = new ResourceConfig(Service.class);
+            config.property("dobotSDK",db);
+            HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+
+
+        //moveTest(portname);
+
+//        try {
+//            DobotSDK db = new DobotSDK(115200, portname, false, false, 1000);
+//
+//            int speed=50;
+//            int acc=50;
+//            while(true) {
+//                db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(150f, 50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(300f, 50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(300f, -50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
     private static void moveTest(String portname){
         OpenDobotDriver dobot = new OpenDobotDriver(portname);
