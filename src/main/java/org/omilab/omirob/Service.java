@@ -31,7 +31,7 @@ public class Service {
 
     @GET
     public Response getIndex() throws IOException, TemplateException {
-        ByteArrayOutputStream bos = Freemarker.process(new HashMap(), "index");
+        ByteArrayOutputStream bos = Freemarker.process(new HashMap(), "video");
         return Response.status(200).entity(bos.toString()).build();
     }
 
@@ -39,7 +39,7 @@ public class Service {
     @POST
     @Path("/move")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response sendEmail(@FormParam("x") int x,
+    public Response move(@FormParam("x") int x,
                               @FormParam("y") int y,
                               @FormParam("z") int z) {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");

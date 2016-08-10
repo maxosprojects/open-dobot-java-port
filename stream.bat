@@ -1,0 +1,1 @@
+C:\ffmpeg\bin\ffmpeg -s 1280x720 -r 30 -f dshow -rtbufsize 500000k -i video="Logitech HD Pro Webcam C920" -f mpeg1video -b 3000k -r 30 http://localhost:8080/stream/input
