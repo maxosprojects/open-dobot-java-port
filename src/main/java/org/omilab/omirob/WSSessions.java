@@ -18,7 +18,7 @@ public class WSSessions {
     private final static Logger logger = LoggerFactory.getLogger(WSSessions.class);
 
 
-    private static final int BUFFER_SIZE_MB=16;
+    private static final int BUFFER_SIZE_MB=1;
     private static final int BUFFER_SIZE_BYTE=BUFFER_SIZE_MB*1024*1024;
     private static final byte[] buffer=new byte[BUFFER_SIZE_BYTE];
     private static volatile int writepos=0;
@@ -28,8 +28,7 @@ public class WSSessions {
        synchronized (sessions) {
            ClientSession s = new ClientSession(session, buffer);
            sessions.add(s);
-           logger.warn("Client added:"+s.getSession().getId());
-           logger.info("Clients: "+sessions.size());
+           logger.info(String.format("Client added: %s; count: %d",s.getSession().getId(),sessions.size()));
        }
     }
 
@@ -51,7 +50,7 @@ public class WSSessions {
                 s.sendAsync(writepos);
                 if(!s.isAlive()){
                     i.remove();
-                    logger.warn("Client removed:"+s.getSession().getId());
+                    logger.info(String.format("Client removed: %s; count: %d",s.getSession().getId(),sessions.size()));
 
                 }
 
