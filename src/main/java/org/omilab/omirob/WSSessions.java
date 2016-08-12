@@ -1,5 +1,8 @@
 package org.omilab.omirob;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.websocket.Session;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -11,26 +14,48 @@ import java.util.List;
  * Created by Martin on 10.08.2016.
  */
 public class WSSessions {
-    private static List<Session> sessions=new ArrayList<Session>();
+    private static List<ClientSession> sessions=new ArrayList<ClientSession>();
+    private final static Logger logger = LoggerFactory.getLogger(WSSessions.class);
+
+
+    private static final int BUFFER_SIZE_MB=16;
+    private static final int BUFFER_SIZE_BYTE=BUFFER_SIZE_MB*1024*1024;
+    private static final byte[] buffer=new byte[BUFFER_SIZE_BYTE];
+    private static volatile int writepos=0;
+
 
     public static void addSession(Session session){
-        sessions.add(session);
+       synchronized (sessions) {
+           ClientSession s = new ClientSession(session, buffer);
+           sessions.add(s);
+           logger.warn("Client added:"+s.getSession().getId());
+           logger.info("Clients: "+sessions.size());
+       }
     }
 
-    public static void send(ByteBuffer data){
-        Iterator<Session> i = sessions.iterator();
-        while (i.hasNext()) {
-            Session s = i.next(); // must be called before you can call i.remove()
-            try {
-                data.rewind();
-                s.getBasicRemote().sendBinary(data);
-            } catch (IOException e) {
-                e.printStackTrace();
-                i.remove();
-            }
-
+    public synchronized static void send(byte[] data){
+        if(data.length+writepos>BUFFER_SIZE_BYTE){
+            int remaining=BUFFER_SIZE_BYTE-writepos;
+            System.arraycopy(data, 0, buffer, writepos, remaining);
+            System.arraycopy(data, remaining, buffer, 0, data.length-remaining);
         }
+        else
+            System.arraycopy(data, 0, buffer, writepos, data.length);
 
+        writepos=(writepos+data.length)%BUFFER_SIZE_BYTE;
+
+        synchronized (sessions){
+            Iterator<ClientSession> i = sessions.iterator();
+            while (i.hasNext()) {
+                ClientSession s = i.next(); // must be called before you can call i.remove()
+                s.sendAsync(writepos);
+                if(!s.isAlive()){
+                    i.remove();
+                    logger.warn("Client removed:"+s.getSession().getId());
+
+                }
+
+            }}
     }
 
 

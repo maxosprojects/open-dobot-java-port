@@ -17,19 +17,22 @@ import java.nio.ByteBuffer;
 
 public class ServiceStream extends HttpServlet {
 
+
+    private static final int BLOCKSIZE = 4096;
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doPost(req, resp);
         InputStream is = req.getInputStream();
         while (true) {
-            byte buf[]=new byte[512];
+            byte buf[]=new byte[BLOCKSIZE];
             int a=0;
             while(a<buf.length)
                 a+=is.read(buf,a,buf.length-a);
             if(a!=buf.length)
                 System.out.println("SDIOAHDFÄOHDF"+a);
-            ByteBuffer bb = ByteBuffer.wrap(buf);
-            WSSessions.send(bb);
+
+            WSSessions.send(buf);
         }
     }
 

@@ -79,7 +79,11 @@
                     <script type="text/javascript" src="/static/js/jsmpg.js"></script>
                     <script type="text/javascript">
                         // Setup the WebSocket connection and start the player
-                        var client = new WebSocket( 'ws://localhost:8080/stream/output' );
+                        function url(s) {
+                            var l = window.location;
+                            return ((l.protocol === "https:") ? "wss://" : "ws://") + l.host + l.pathname + s;
+                        }
+                        var client = new WebSocket( url('stream/output') );
 
                         var canvas = document.getElementById('videoCanvas');
                         var player = new jsmpeg(client, {canvas:canvas});
