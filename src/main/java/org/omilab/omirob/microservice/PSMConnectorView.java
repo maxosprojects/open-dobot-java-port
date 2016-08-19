@@ -1,10 +1,3 @@
-// File:         PSMConnectorView.java
-// Created:      19.08.16
-// Author:       David Götzinger (dgoetzinger@dke.univie.ac.at)
-//
-// Copyright (C) 2016 by OMiLAB.ORG
-//
-
 package org.omilab.omirob.microservice;
 
 import org.omilab.omirob.microservice.model.GenericServiceContent;
@@ -19,6 +12,9 @@ import java.util.Map;
 @Path("/view")
 public final class PSMConnectorView {
 
+
+	public PSMConnectorView() {
+	}
 
 	@POST
 	@Path("/{instanceid}/{endpoint}")
