@@ -1,4 +1,7 @@
-    <!-- Sidebar -->
+<link rel="stylesheet" href="${sidebarcss}">
+
+
+<!-- Sidebar -->
     <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
             <li class="sidebar-brand">
@@ -44,7 +47,7 @@
                             <a href="http://www.apple.com/safari/">Safari</a> or Internet Explorer 10
                         </p>
                     </canvas>
-                    <script type="text/javascript" src="/static/js/jsmpg.js"></script>
+                    <script type="text/javascript" src="${jsmpgpath}"></script>
                     <script type="text/javascript">
                         // Setup the WebSocket connection and start the player
                         function url(s) {

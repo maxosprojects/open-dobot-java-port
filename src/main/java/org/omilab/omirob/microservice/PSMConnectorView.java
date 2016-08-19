@@ -18,6 +18,7 @@ import java.util.Map;
 @Path("/view")
 public final class PSMConnectorView {
 
+	private final static String OUTSIDE_URL = "http://rdf1ss.dke.univie.ac.at:8181";
 
 	public PSMConnectorView() {
 	}
@@ -49,7 +50,8 @@ public final class PSMConnectorView {
 			Template temp = cfg.getTemplate("video.ftl");
 
 			Map<String, Object> data = new HashMap<>();
-
+			data.put("sidebarcss",OUTSIDE_URL + "/static/css/simple-sidebar.css");
+			data.put("jsmpgpath",OUTSIDE_URL + "/static/js/jsmpg.js");
 			temp.process(data, output);
 		} catch(Exception e){
 			e.printStackTrace();
