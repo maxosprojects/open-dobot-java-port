@@ -1,1 +1,2 @@
-C:\ffmpeg\bin\ffmpeg -s 1280x720 -r 30 -f dshow -rtbufsize 500000k -i video="Logitech HD Pro Webcam C920" -f mpeg1video -b 3000k -r 30 http://localhost:8080/stream/input
+C:\ffmpeg\bin\ffmpeg -s 1280x720 -r 30 -f dshow -rtbufsize 15000k -frame_drop_threshold 3 -i video="Logitech HD Pro Webcam C920" -f mpeg1video -b 3000k -r 30 http://localhost:8080/stream/input
+# C:\ffmpeg\bin\ffmpeg -s 1280x720 -r 30 -f dshow -rtbufsize 10000k -frame_drop_threshold 3 -i video="Integrated Camera" -f mpeg1video -b 3000k -r 30 http://localhost:8080/stream/input

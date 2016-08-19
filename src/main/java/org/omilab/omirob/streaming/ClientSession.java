@@ -1,4 +1,4 @@
-package org.omilab.omirob;
+package org.omilab.omirob.streaming;
 
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
@@ -18,9 +18,11 @@ public class ClientSession implements SendHandler {
     private volatile boolean alive=true;
     private Lock lock=new ReentrantLock();
 
-    public ClientSession(Session session, byte[] buffer) {
+    public ClientSession(Session session, byte[] buffer, int writepos) {
         this.session=session;
         byteBuffer=ByteBuffer.wrap(buffer);
+        byteBuffer.position(writepos);
+        byteBuffer.limit(writepos);
     }
 
     public void sendAsync(int writepos) {

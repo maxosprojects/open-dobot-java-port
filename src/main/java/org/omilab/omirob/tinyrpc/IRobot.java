@@ -1,6 +1,6 @@
-package org.omilab.omirob;
+package org.omilab.omirob.tinyrpc;
 
-import org.omilab.omirob.codegen.TinyRPCMethod;
+import org.omilab.omirob.tinyrpc.codegen.TinyRPCMethod;
 
 /**
  * Created by Martin on 22.07.2016.

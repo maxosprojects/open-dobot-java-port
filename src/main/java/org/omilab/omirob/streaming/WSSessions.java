@@ -1,11 +1,9 @@
-package org.omilab.omirob;
+package org.omilab.omirob.streaming;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.Session;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +24,7 @@ public class WSSessions {
 
     public static void addSession(Session session){
        synchronized (sessions) {
-           ClientSession s = new ClientSession(session, buffer);
+           ClientSession s = new ClientSession(session, buffer, writepos);
            sessions.add(s);
            logger.info(String.format("Client added: %s; count: %d",s.getSession().getId(),sessions.size()));
        }

@@ -1,7 +1,6 @@
-package org.omilab.omirob;
+package org.omilab.omirob.tinyrpc.codegen;
 
-import org.omilab.omirob.codegen.DispatchGen;
-import org.omilab.omirob.codegen.HeaderGen;
+import org.omilab.omirob.tinyrpc.IRobot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

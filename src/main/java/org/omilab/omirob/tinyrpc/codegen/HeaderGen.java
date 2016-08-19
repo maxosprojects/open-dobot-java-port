@@ -1,6 +1,4 @@
-package org.omilab.omirob.codegen;
-
-import org.omilab.omirob.IRobot;
+package org.omilab.omirob.tinyrpc.codegen;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

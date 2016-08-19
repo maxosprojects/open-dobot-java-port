@@ -1,4 +1,6 @@
-package org.omilab.omirob;
+package org.omilab.omirob.streaming;
+
+import org.omilab.omirob.streaming.WSSessions;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
@@ -9,11 +11,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.sql.BatchUpdateException;
 
 @ClientEndpoint
 @ServerEndpoint(value="/stream/output")

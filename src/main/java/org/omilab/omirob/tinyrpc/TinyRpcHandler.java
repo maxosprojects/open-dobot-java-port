@@ -1,8 +1,8 @@
 package org.omilab.omirob.tinyrpc;
 
-import org.omilab.omirob.ArduinoCodeGen;
-import org.omilab.omirob.codegen.TinyRPCMethod;
-import org.omilab.omirob.codegen.Tools;
+import org.omilab.omirob.tinyrpc.codegen.ArduinoCodeGen;
+import org.omilab.omirob.tinyrpc.codegen.TinyRPCMethod;
+import org.omilab.omirob.tinyrpc.codegen.Tools;
 import purejavacomm.*;
 
 import java.io.IOException;
