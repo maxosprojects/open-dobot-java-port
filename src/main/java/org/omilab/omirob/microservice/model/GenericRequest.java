@@ -7,9 +7,11 @@
 
 package org.omilab.omirob.microservice.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Map;
 
+@XmlRootElement
 public final class GenericRequest {
 
 	private String username;
