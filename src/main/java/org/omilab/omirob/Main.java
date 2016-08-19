@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.websocket.server.ServerContainer;
 import java.io.IOException;
+import org.glassfish.jersey.jackson.JacksonFeature;
 
 import org.glassfish.jersey.servlet.ServletContainer;
 
@@ -43,6 +44,7 @@ public class Main {
 
             ResourceConfig config = new ResourceConfig();
             config.register(Service.class);
+            config.register(JacksonFeature.class);
             ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));
             context.addServlet(jerseyServlet, "/*");
             context.addServlet(ServiceStream.class, "/stream/input");
