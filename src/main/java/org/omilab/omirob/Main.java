@@ -6,6 +6,9 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.omilab.omirob.microservice.PSMConnectorAdmin;
+import org.omilab.omirob.microservice.PSMConnectorMgmt;
+import org.omilab.omirob.microservice.PSMConnectorView;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.omilab.omirob.opendobot.OpenDobotDriver;
 import org.omilab.omirob.streaming.FFMpegThread;
@@ -44,6 +47,9 @@ public class Main {
 
             ResourceConfig config = new ResourceConfig();
             config.register(Service.class);
+            config.register(PSMConnectorAdmin.class);
+            config.register(PSMConnectorMgmt.class);
+            config.register(PSMConnectorView.class);
             config.register(JacksonFeature.class);
             ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));
             context.addServlet(jerseyServlet, "/*");
