@@ -33,7 +33,7 @@ public class Main {
             //config.property("dobotSDK",db);
             Server server = new Server();
             ServerConnector connector = new ServerConnector(server);
-            connector.setPort(8080);
+            connector.setPort(8181);
             server.addConnector(connector);
 
             // Setup the basic application "context" for this application at "/"
