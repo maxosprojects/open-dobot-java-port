@@ -33,8 +33,8 @@ public class ServiceWS
             ByteBuffer b= ByteBuffer.allocate(8);
             b.order(ByteOrder.BIG_ENDIAN);
             b.put("jsmp".getBytes(StandardCharsets.US_ASCII));
-            b.putShort((short) 1280);
-            b.putShort((short) 720);
+            b.putShort((short) 640);
+            b.putShort((short) 360);
             b.rewind();
             sess.getBasicRemote().sendBinary(b);
         } catch (IOException e) {

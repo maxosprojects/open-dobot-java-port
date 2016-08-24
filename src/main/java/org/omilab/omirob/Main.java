@@ -23,7 +23,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
  */
 public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
-    private final String portname="COM22";
+    private final static String portname="COM22";
 
     public static void main(String[] args){
         try {
@@ -58,11 +58,11 @@ public class Main {
             server.dump(System.err);
             try{
             Thread t=new Thread(new FFMpegThread());
-            t.start();
+            //t.start();
             }catch (Exception e){
                 logger.warn("Failed to start ffmpeg");
             }
-
+            //moveTestXYZ(portname);
             server.join();
         } catch (Throwable t) {
             t.printStackTrace(System.err);
@@ -76,11 +76,29 @@ public class Main {
             int speed=50;
             int acc=50;
             while(true) {
-                db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
-                db.moveWithSpeed(150f, 50, 100f, speed, acc, 1000);
-                db.moveWithSpeed(300f, 50, 100f, speed, acc, 1000);
-                db.moveWithSpeed(300f, -50, 100f, speed, acc, 1000);
-                db.moveWithSpeed(150f, -50, 150f, speed, acc, 1000);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                db.valveOn(true);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                db.valveOn(false);
+
+//                db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
+//
+//                db.moveWithSpeed(150f, 50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(300f, 50, 100f, speed, acc, 1000);
+//                db.pumpOn(true);
+//                db.moveWithSpeed(300f, 50, 150f, speed, acc, 1000);
+//                db.pumpOn(false);
+//                db.moveWithSpeed(300f, 50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(300f, -50, 100f, speed, acc, 1000);
+//                db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
             }
         } catch (IOException e) {
             e.printStackTrace();

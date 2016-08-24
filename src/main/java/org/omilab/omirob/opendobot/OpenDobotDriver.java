@@ -20,6 +20,7 @@ import static org.omilab.omirob.opendobot.DobotKinematics.piHalf;
  */
 public class OpenDobotDriver {
     private final static Logger logger = LoggerFactory.getLogger(OpenDobotDriver.class);
+    private static final int TRIES = 10;
 
     private final int toolRotation=0;
     private final int gripper=480;
@@ -355,4 +356,38 @@ public class OpenDobotDriver {
     }
 
 
+    public void pumpOn(boolean on) throws IOException {
+        int trys=TRIES;
+        while(trys>0)
+        {
+            sendcommand(CMD_PUMP_ON);
+            writebyte((byte) (on==true?1:0));
+            writechecksum();
+            readbyte(); //TODO: check queued
+            int[] crcword = readchecksumword();
+            if (crcword[0] != 1)
+                if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                    return;
+            trys--;
+        }
+        logger.warn("CRC error");
+    }
+
+    public void valveOn(boolean on) throws IOException {
+        int trys=TRIES;
+        while(trys>0)
+        {
+            sendcommand(CMD_VALVE_ON);
+            writebyte((byte) (on==true?1:0));
+            writechecksum();
+            readbyte(); //TODO: check queued
+
+            int[] crcword = readchecksumword();
+            if (crcword[0] != 1)
+                if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                    return;
+            trys--;
+        }
+        logger.warn("CRC error");
+    }
 }

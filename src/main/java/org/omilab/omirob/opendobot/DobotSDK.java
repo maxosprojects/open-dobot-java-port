@@ -444,7 +444,8 @@ public class DobotSDK {
             currRearAngle = piHalf - piTwo * rearSteps / rearArmActualStepsPerRevolution;
             currFrontAngle = piTwo * frontSteps / frontArmActualStepsPerRevolution;
             Point3f c = kinematics.coordinatesFromAngles(currBaseAngle, currRearAngle, currFrontAngle);
-
+        }
+    }
 
 //    def Gripper(self, gripper):
 //            if gripper > 480:
@@ -486,7 +487,12 @@ public class DobotSDK {
 //    def ValveOn(self, on):
 //            return self._driver.ValveOn(on)
 
-
+        public void pumpOn(boolean on) throws IOException {
+            driver.pumpOn(on);
         }
+
+    public void valveOn(boolean on) throws IOException {
+        driver.valveOn(on);
     }
+
 }

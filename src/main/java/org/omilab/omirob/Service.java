@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 @Path("/")
@@ -58,8 +59,8 @@ public class Service {
     @Path("/static/{filename:.*}")
     public Response getStaticFile(@PathParam("filename") String filename) {
         try{
-            File file = new File(Service.class.getResource("/static/"+filename).getFile());
-            return Response.status(200).entity(file).build();
+            InputStream s = Service.class.getResourceAsStream("/static/" + filename);
+            return Response.status(200).entity(s).build();
         }
         catch (Exception e){
             return Response.serverError().entity(e.toString()).build();

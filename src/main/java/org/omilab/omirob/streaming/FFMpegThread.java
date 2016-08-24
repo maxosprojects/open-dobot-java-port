@@ -16,13 +16,14 @@ public class FFMpegThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+//    ffmpeg  -r 30 -s 640x360 -f v4l2  -i /dev/video0 -f mpeg1video  -b:v 1500k "http://localhost:8080/stream/input"
 
     //C:\ffmpeg\bin\ffmpeg -s 1280x720 -r 30 -f dshow -rtbufsize 15000k -frame_drop_threshold 3 -i video="Logitech HD Pro Webcam C920" -f mpeg1video -b 3000k -r 30 http://localhost:8080/stream/input
     private void runFFmpeg() throws IOException {
 
         ProcessBuilder pb =
                 new ProcessBuilder("C:\\ffmpeg\\bin\\ffmpeg",
-                        "-s", "1280x720",
+                        "-s", "640x360",
                         "-r", "30",
                         //"-re",
                         "-f", "dshow",
