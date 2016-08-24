@@ -32,7 +32,7 @@ public class ServiceWS
         try {
             ByteBuffer b= ByteBuffer.allocate(8);
             b.order(ByteOrder.BIG_ENDIAN);
-            b.put("jsmp".getBytes(StandardCharsets.US_ASCII));
+            b.put(STREAM_MAGIC_BYTES.getBytes(StandardCharsets.US_ASCII));
             b.putShort((short) 640);
             b.putShort((short) 360);
             b.rewind();

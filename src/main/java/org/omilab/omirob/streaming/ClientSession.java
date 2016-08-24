@@ -1,5 +1,8 @@
 package org.omilab.omirob.streaming;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 import javax.websocket.Session;
@@ -12,11 +15,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by Martin on 12.08.2016.
  */
 public class ClientSession implements SendHandler {
+    private final static Logger logger = LoggerFactory.getLogger(ClientSession.class);
+
     private final Session session;
     private ByteBuffer byteBuffer;
     private volatile int writepos=0;
     private volatile boolean alive=true;
-    private Lock lock=new ReentrantLock();
 
     public ClientSession(Session session, byte[] buffer, int writepos) {
         this.session=session;
@@ -25,20 +29,12 @@ public class ClientSession implements SendHandler {
         byteBuffer.limit(writepos);
     }
 
-    public void sendAsync(int writepos) {
-        this.writepos=writepos;
-        try {
-            if(lock.tryLock(0, TimeUnit.SECONDS))
-                send();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private synchronized void send(){
+    synchronized void send(int writepos){
         //0 <= mark <= position <= limit <= capacity
+        this.writepos=writepos;
+
         if(byteBuffer.position()==byteBuffer.capacity()){ //reset to zero if at end of buffer
-            byteBuffer.limit(writepos);
+            byteBuffer.limit(byteBuffer.capacity());
             byteBuffer.position(0);
         }
 
@@ -50,20 +46,12 @@ public class ClientSession implements SendHandler {
         }
         if(byteBuffer.remaining()>0)
             session.getAsyncRemote().sendBinary(byteBuffer, this);
-        else
-            lock.unlock();
     }
 
     @Override
     public void onResult(SendResult sendResult) {
-        lock.unlock();
-        if(sendResult.isOK()){
-            lock.lock();
-            send();
-        }
-
-        else alive=false;
-
+        if(!sendResult.isOK())
+            alive=false;
     }
 
     public boolean isAlive() {
