@@ -1,10 +1,12 @@
 package org.omilab.omirob;
 
+import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.omilab.omirob.opendobot.OpenDobotDriver;
@@ -23,14 +25,12 @@ import org.glassfish.jersey.servlet.ServletContainer;
  */
 public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
-    private final static String portname="COM22";
 
     public static void main(String[] args){
         try {
-          //  moveTest(portname);
-            //DobotSDK db = new DobotSDK(115200, portname, false, false, 1000);
+
+            DobotSDK db = new DobotSDK(115200, Settings.portName, false, false, 1000);
             new Freemarker().init();
-            //config.property("dobotSDK",db);
             Server server = new Server();
             ServerConnector connector = new ServerConnector(server);
             connector.setPort(8080);
@@ -43,6 +43,8 @@ public class Main {
 
             ResourceConfig config = new ResourceConfig();
             config.register(Service.class);
+            config.property("dobotSDK",db);
+            config.register(JacksonFeature.class);
             ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));
             context.addServlet(jerseyServlet, "/*");
             context.addServlet(ServiceStream.class, "/stream/input");

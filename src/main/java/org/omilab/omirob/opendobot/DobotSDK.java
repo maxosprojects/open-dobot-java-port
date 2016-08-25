@@ -32,7 +32,7 @@ public class DobotSDK {
     // The NEMA 17 stepper motors Dobot uses are connected to a planetary gearbox, the black cylinders
 // with 10:1 reduction ratio
     private static float stepperPlanetaryGearBoxMultiplier = 10.0f;
-    private final float toolRotation;
+    private float toolRotation;
     private float frontSteps;
     private float baseSteps;
     private float rearSteps;
@@ -54,6 +54,9 @@ public class DobotSDK {
         this.debugOn = debug;
         this.fake = fake;
         this.driver = new OpenDobotDriver(port);
+        init();
+    }
+    private void init() throws IOException {
         if (fake) {
             driver.ramps = true;
             driver.stepCoeff = 20000;
@@ -77,8 +80,6 @@ public class DobotSDK {
             frontSteps = 0L;
         } else
             InitializeAccelerometers();
-
-
     }
 
     public void InitializeAccelerometers() throws IOException {
@@ -493,6 +494,11 @@ public class DobotSDK {
 
     public void valveOn(boolean on) throws IOException {
         driver.valveOn(on);
+    }
+
+    public void reset() throws IOException {
+        driver.reset();
+        init();
     }
 
 }

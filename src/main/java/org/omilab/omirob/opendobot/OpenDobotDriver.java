@@ -21,10 +21,12 @@ import static org.omilab.omirob.opendobot.DobotKinematics.piHalf;
 public class OpenDobotDriver {
     private final static Logger logger = LoggerFactory.getLogger(OpenDobotDriver.class);
     private static final int TRIES = 10;
+    private static final long TIMEOUT = 1000;
 
     private final int toolRotation=0;
     private final int gripper=480;
     static int stepCoeff = 500000;
+    private final String portName;
     private OutputStream out;
     private InputStream in;
     private int crc=0xffff;
@@ -46,6 +48,7 @@ public class OpenDobotDriver {
     public int stepCoeffOver2;
     public int freqCoeff;
     private boolean fpga=true;
+    private SerialPort port;
 
     private  void crc_clear(){
         crc = 0xffff;
@@ -79,9 +82,12 @@ public class OpenDobotDriver {
     }
 
     private byte readbyte() throws IOException {
-        int data=in.read();
+        int data=-1;
+        long startTime=System.currentTimeMillis();
+        while(data<0&&(System.currentTimeMillis()-startTime<TIMEOUT)) //enforce serial timeout
+            data=in.read();
         if(data<0)
-                throw new RuntimeException("readbyte()");
+            throw new IOException("readbyte() timeout");
 
         crc_update((byte) (data&0xFF));
         return (byte) (data&0xFF);
@@ -253,6 +259,11 @@ public class OpenDobotDriver {
     }
 
     public OpenDobotDriver(String portname){
+        this.portName=portname;
+        init(portname);
+    }
+
+    private void init(String portname){
         CommPortIdentifier portid = null;
         Enumeration e = CommPortIdentifier.getPortIdentifiers();
         while (e.hasMoreElements()) {
@@ -262,11 +273,12 @@ public class OpenDobotDriver {
                 break;
         }
         try {
-            SerialPort port = (SerialPort) portid.open("asdf", 1000);
+            port = (SerialPort) portid.open("asdf", 1000);
             port.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
             port.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
-            port.enableReceiveTimeout(2000);
+            port.enableReceiveThreshold(1);
+            port.enableReceiveTimeout((int) TIMEOUT);
             out = port.getOutputStream();
             in = port.getInputStream();
 
@@ -275,8 +287,6 @@ public class OpenDobotDriver {
             Thread.sleep(1000);
             byte[] bv=boardVersion();
             System.out.println(bv[0]);
-
-
         } catch (PortInUseException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {
@@ -286,8 +296,6 @@ public class OpenDobotDriver {
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-
-
     }
 
     public boolean isFpga() {
@@ -363,7 +371,7 @@ public class OpenDobotDriver {
             sendcommand(CMD_PUMP_ON);
             writebyte((byte) (on==true?1:0));
             writechecksum();
-            readbyte(); //TODO: check queued
+            //readbyte(); //TODO: check queued
             int[] crcword = readchecksumword();
             if (crcword[0] != 1)
                 if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
@@ -380,7 +388,7 @@ public class OpenDobotDriver {
             sendcommand(CMD_VALVE_ON);
             writebyte((byte) (on==true?1:0));
             writechecksum();
-            readbyte(); //TODO: check queued
+            //readbyte(); //TODO: check queued
 
             int[] crcword = readchecksumword();
             if (crcword[0] != 1)
@@ -389,5 +397,20 @@ public class OpenDobotDriver {
             trys--;
         }
         logger.warn("CRC error");
+    }
+
+    public void reset() {
+        try{
+        port.close();}
+        catch (Exception e){
+            logger.warn("reset: close failed",e);
+        }try {
+            init(portName);
+        }
+        catch (Exception e)
+        {
+            logger.warn("reset: init failed",e);
+        }
+
     }
 }
