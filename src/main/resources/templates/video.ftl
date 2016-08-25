@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
@@ -91,7 +89,7 @@
                         <label for="x">XYZ</label>
                         <input type="text" class="form-control" id="x" style="width: 50px" value="200">
                         <input type="text" class="form-control" id="y" style="width: 50px" value="0">
-                        <input type="text" class="form-control" id="z" style="width: 50px" value="70">
+                        <input type="text" class="form-control" id="z" style="width: 50px" value="75">
                     </div>
                     <button type="button" class="btn btn-default" id="sendXYZ">Move</button>
                </div>
@@ -101,7 +99,22 @@
         <div class="row">
             <div class="form-group">
                 <label for="comment">Sequence:</label>
-                <textarea class="form-control" rows="10" id="txtSequence"></textarea>
+                <textarea class="form-control" rows="10" id="txtSequence">
+#comment
+reset
+sleep 1
+valveOn true
+valveOn false
+pumpOn true
+pumpOn false
+move 200 0 170
+move 200 0 100
+move 200 0 120
+move 250 0 120
+move 250 100 120
+move 200 100 120
+move 200 0 120
+                </textarea>
             </div>
             <button type="button" class="btn btn-default" id="btnSequence">Run</button>
         </div>

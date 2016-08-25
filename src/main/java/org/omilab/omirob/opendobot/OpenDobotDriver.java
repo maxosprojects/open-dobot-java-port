@@ -2,10 +2,7 @@ package org.omilab.omirob.opendobot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import purejavacomm.CommPortIdentifier;
-import purejavacomm.PortInUseException;
-import purejavacomm.SerialPort;
-import purejavacomm.UnsupportedCommOperationException;
+import purejavacomm.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -264,16 +261,10 @@ public class OpenDobotDriver {
     }
 
     private void init(String portname){
-        CommPortIdentifier portid = null;
-        Enumeration e = CommPortIdentifier.getPortIdentifiers();
-        while (e.hasMoreElements()) {
-            portid = (CommPortIdentifier) e.nextElement();
-            System.out.println("found " + portid.getName());
-            if(portid.getName().equalsIgnoreCase(portname))
-                break;
-        }
         try {
+            CommPortIdentifier portid = CommPortIdentifier.getPortIdentifier(portname);
             port = (SerialPort) portid.open("asdf", 1000);
+
             port.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
             port.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
@@ -295,6 +286,8 @@ public class OpenDobotDriver {
             e1.printStackTrace();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
+        } catch (NoSuchPortException e) {
+            e.printStackTrace();
         }
     }
 

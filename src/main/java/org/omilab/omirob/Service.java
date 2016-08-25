@@ -65,6 +65,14 @@ public class Service {
         for(String line:lines){
             Scanner s=new Scanner(line);
             String cmd=s.next().trim();
+            if(cmd.startsWith("#"))
+                continue;
+            if(cmd.equals("sleep"))
+                try {
+                    Thread.sleep(Math.min(s.nextInt()*1000,10000));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             if(cmd.equals("reset"))
                 dobot.reset();
             else if(cmd.equals("move"))
@@ -112,16 +120,6 @@ public class Service {
         return Response.ok("").build();
     }
 
-
-    @POST
-    @Path("/test1")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response test1() {
-        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-        moveTestXYZ(dobot);
-        return Response.ok("TEST").build();
-    }
-
     @POST
     @Path("/reset")
     @Produces(MediaType.APPLICATION_JSON)
@@ -145,25 +143,4 @@ public class Service {
             return Response.serverError().entity(e.toString()).build();
         }
     }
-
-
-    private static void moveTestXYZ(DobotSDK db) {
-        try {
-
-            //db.pumpOn(true);
-            db.valveOn(true);
-            db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
-            db.moveWithSpeed(150f, 50, 100f, speed, acc, 1000);
-            db.moveWithSpeed(300f, 50, 100f, speed, acc, 1000);
-            db.pumpOn(true);
-            db.moveWithSpeed(300f, 50, 150f, speed, acc, 1000);
-            db.pumpOn(false);
-            db.moveWithSpeed(300f, 50, 100f, speed, acc, 1000);
-            db.moveWithSpeed(300f, -50, 100f, speed, acc, 1000);
-            db.moveWithSpeed(150f, -50, 100f, speed, acc, 1000);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
