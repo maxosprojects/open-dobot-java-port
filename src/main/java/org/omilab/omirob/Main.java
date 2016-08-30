@@ -8,6 +8,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.omilab.omirob.opendobot.OpenDobotDriver;
 import org.omilab.omirob.streaming.FFMpegThread;
@@ -28,8 +29,14 @@ public class Main {
 
     public static void main(String[] args){
         try {
+            DobotSDK db=null;
+            try {
+                db = new DobotSDK(115200, Settings.portName, false, false, 1000);
+            }
+            catch (Exception e){
+                logger.warn("Dobot init failed",e);
+            }
 
-            DobotSDK db = new DobotSDK(115200, Settings.portName, false, false, 1000);
             new Freemarker().init();
             Server server = new Server();
             ServerConnector connector = new ServerConnector(server);

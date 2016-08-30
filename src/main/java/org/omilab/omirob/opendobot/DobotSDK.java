@@ -12,7 +12,7 @@ import static org.omilab.omirob.opendobot.DobotKinematics.piTwo;
 /**
  * Created by Martin on 04.08.2016.
  */
-public class DobotSDK {
+public class DobotSDK implements IDobotSDK {
     private final static Logger logger = LoggerFactory.getLogger(DobotSDK.class);
 
     // See calibrate-accelerometers.py for details
@@ -82,6 +82,7 @@ public class DobotSDK {
             InitializeAccelerometers();
     }
 
+    @Override
     public void InitializeAccelerometers() throws IOException {
         logger.info("--=========--");
         logger.info("Initializing accelerometers");
@@ -299,6 +300,7 @@ public class DobotSDK {
         return driver.freqToCmdVal(freq);
     }
 
+    @Override
     public void moveWithSpeed(float xx, float yy, float zz, float maxVel, float accel, float toolRotation) throws IOException {
         if (toolRotation > 1024)
             toolRotation = 1024f;
@@ -488,14 +490,17 @@ public class DobotSDK {
 //    def ValveOn(self, on):
 //            return self._driver.ValveOn(on)
 
+        @Override
         public void pumpOn(boolean on) throws IOException {
             driver.pumpOn(on);
         }
 
+    @Override
     public void valveOn(boolean on) throws IOException {
         driver.valveOn(on);
     }
 
+    @Override
     public void reset() throws IOException {
         driver.reset();
         init();
