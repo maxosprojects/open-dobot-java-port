@@ -37,7 +37,6 @@
                             <a href="http://www.apple.com/safari/">Safari</a> or Internet Explorer 10
                         </p>
                     </canvas>
-                    <script type="text/javascript" src="/static/js/jsmpg.js"></script>
                     <script type="text/javascript">
                         // Setup the WebSocket connection and start the player
                         function url(s) {
@@ -99,12 +98,6 @@ move 200 0 120
 
 </div>
 <!-- /#wrapper -->
-
-<!-- jQuery -->
-<script src="static/js/jquery-3.1.0.min.js"></script>
-
-<!-- Bootstrap Core JavaScript -->
-<script src="static/js/bootstrap.min.js"></script>
 
 <!-- Menu Toggle Script -->
 <script>
