@@ -9,6 +9,9 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
+import org.omilab.omirob.microservice.PSMConnectorAdmin;
+import org.omilab.omirob.microservice.PSMConnectorMgmt;
+import org.omilab.omirob.microservice.PSMConnectorView;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.omilab.omirob.opendobot.OpenDobotDriver;
 import org.omilab.omirob.streaming.FFMpegThread;
@@ -18,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.websocket.server.ServerContainer;
 import java.io.IOException;
+import org.glassfish.jersey.jackson.JacksonFeature;
 
 import org.glassfish.jersey.servlet.ServletContainer;
 
@@ -38,9 +42,10 @@ public class Main {
             }
 
             new Freemarker().init();
+            //config.property("dobotSDK",db);
             Server server = new Server();
             ServerConnector connector = new ServerConnector(server);
-            connector.setPort(8080);
+            connector.setPort(8181);
             server.addConnector(connector);
 
             // Setup the basic application "context" for this application at "/"
@@ -50,6 +55,10 @@ public class Main {
 
             ResourceConfig config = new ResourceConfig();
             config.register(Service.class);
+            config.register(PSMConnectorAdmin.class);
+            config.register(PSMConnectorMgmt.class);
+            config.register(PSMConnectorView.class);
+            config.register(JacksonFeature.class);
             config.property("dobotSDK",db);
             config.register(JacksonFeature.class);
             ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));
@@ -67,11 +76,11 @@ public class Main {
             server.dump(System.err);
             try{
             Thread t=new Thread(new FFMpegThread());
-            //t.start();
+            t.start();
             }catch (Exception e){
                 logger.warn("Failed to start ffmpeg");
             }
-            //moveTestXYZ(portname);
+
             server.join();
         } catch (Throwable t) {
             t.printStackTrace(System.err);
