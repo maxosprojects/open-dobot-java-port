@@ -2,28 +2,6 @@
 <script type="text/javascript" src="${jsmpgpath}"></script>
 
 <div id="wrapper">
-
-    <!-- Sidebar -->
-    <div id="sidebar-wrapper">
-        <ul class="sidebar-nav">
-            <li class="sidebar-brand">
-                <a href="#">
-                    OMiRob
-                </a>
-            </li>
-            <li>
-                <a href="#">Live</a>
-            </li>
-            <li>
-                <a href="#">Services</a>
-            </li>
-            <li>
-                <a href="#">Contact</a>
-            </li>
-        </ul>
-    </div>
-    <!-- /#sidebar-wrapper -->
-
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <div class="container-fluid">
@@ -39,11 +17,13 @@
                     </canvas>
                     <script type="text/javascript">
                         // Setup the WebSocket connection and start the player
-                        function url(s) {
-                            var l = window.location;
-                            return ((l.protocol === "https:") ? "wss://" : "ws://") + l.host + l.pathname + s;
-                        }
-                        var client = new WebSocket( url('stream/output') );
+//                        function url(s) {
+//                            var l = window.location;
+//                            return ((l.protocol === "https:") ? "wss://" : "ws://") + l.host + l.pathname + s;
+//                        }
+//                        var client = new WebSocket( url('stream/output') );
+                        var client = new WebSocket("${wsurl}");
+
 
                         var canvas = document.getElementById('videoCanvas');
                         var player = new jsmpeg(client, {canvas:canvas});

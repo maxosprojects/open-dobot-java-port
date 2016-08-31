@@ -1,5 +1,6 @@
 package org.omilab.omirob.streaming;
 
+import org.omilab.omirob.Settings;
 import org.omilab.omirob.streaming.WSSessions;
 
 import javax.websocket.ClientEndpoint;
@@ -32,8 +33,8 @@ public class ServiceWS
             ByteBuffer b= ByteBuffer.allocate(8);
             b.order(ByteOrder.BIG_ENDIAN);
             b.put(STREAM_MAGIC_BYTES.getBytes(StandardCharsets.US_ASCII));
-            b.putShort((short) 640);
-            b.putShort((short) 360);
+            b.putShort((short) Settings.width);
+            b.putShort((short) Settings.height);
             b.rewind();
             sess.getBasicRemote().sendBinary(b);
         } catch (IOException e) {

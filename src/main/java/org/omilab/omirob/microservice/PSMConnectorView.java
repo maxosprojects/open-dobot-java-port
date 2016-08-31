@@ -52,6 +52,7 @@ public final class PSMConnectorView {
 			Map<String, Object> data = new HashMap<>();
 			data.put("sidebarcss",OUTSIDE_URL + "/static/css/simple-sidebar.css");
 			data.put("jsmpgpath",OUTSIDE_URL + "/static/js/jsmpg.js");
+			data.put("wsurl","ws://localhost:8181/stream/output");
 			temp.process(data, output);
 		} catch(Exception e){
 			e.printStackTrace();
