@@ -18,7 +18,7 @@ import java.util.Map;
 @Path("/view")
 public final class PSMConnectorView {
 
-	private final static String OUTSIDE_URL = "http://rdf1ss.dke.univie.ac.at:8181";
+	private final static String OUTSIDE_URL = "http://localhost:8181";
 
 	public PSMConnectorView() {
 	}

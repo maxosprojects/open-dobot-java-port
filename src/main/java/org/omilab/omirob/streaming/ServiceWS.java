@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 @ServerEndpoint(value="/stream/output")
 public class ServiceWS
 {
-
     private static final String STREAM_MAGIC_BYTES ="jsmp" ;
 
     public ServiceWS(){
@@ -41,8 +40,6 @@ public class ServiceWS
             e.printStackTrace();
         }
         WSSessions.addSession(sess);
-
-
     }
 
     @OnMessage

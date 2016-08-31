@@ -11,39 +11,55 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ServiceStream extends HttpServlet implements Runnable {
     private final static Logger logger = LoggerFactory.getLogger(ServiceStream.class);
-    private Semaphore semSend;
-    private volatile boolean _running = false;
+    private static Semaphore semSend;
+    private final static Lock rcvLock=new ReentrantLock();
+    private static volatile boolean _running = false;
+    private static Thread sendThread;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doPost(req, resp);
-        synchronized (ServiceStream.class) {
-            try {
-                semSend = new Semaphore(0);
-                Thread sendThread = new Thread(this);
-                sendThread.setName("Websocket send thread");
-                _running = true;
-                sendThread.start();
-                InputStream is = req.getInputStream();
-                while (true) {
-                    int count=WSSessions.feed(is);
-                    if(count<0)
-                        throw new EOFException("EOF from: "+req.getRemoteAddr());
-                    semSend.release();
-                }
-            } catch (IOException e) {
-                logger.warn("Input Stream error", e);
-            } finally {
-                shutDown();
+        rcvLock.tryLock();
+        try {
+            semSend = new Semaphore(0);
+            sendThread = new Thread(this);
+            sendThread.setName("Websocket send thread");
+            _running = true;
+            sendThread.start();
+            InputStream is = req.getInputStream();
+            while (true) {
+                int count=WSSessions.feed(is);
+                if(count<0)
+                    throw new EOFException("EOF from: "+req.getRemoteAddr());
+                semSend.release();
             }
+        } catch (IOException e) {
+            logger.warn("Input Stream error", e);
+        } finally {
+            rcvLock.unlock();
+            shutDown();
+            semSend=null;
+            sendThread=null;
         }
     }
 
-    private void shutDown() {
+    private synchronized void shutDown()
+    {
         _running = false;
+        try {
+            while(sendThread.isAlive()){
+                sendThread.interrupt();
+                logger.warn("Waiting for sendThread to die");
+                sendThread.join(1000);
+            }
+        } catch (Exception e) {
+            logger.warn("Shutdown sendthread", e);
+        }
     }
 
     @Override
