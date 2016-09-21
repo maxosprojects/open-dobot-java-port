@@ -63,6 +63,7 @@ public class Main {
             config.register(PSMConnectorMgmt.class);
             config.register(PSMConnectorView.class);
             config.register(JacksonFeature.class);
+            config.register(AuthenticationFilter.class);
             //config.register(CORSFilter.class);
             config.property("dobotSDK",db);
             ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));

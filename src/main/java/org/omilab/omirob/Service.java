@@ -57,93 +57,77 @@ public class Service {
     }
 
     @POST
-    @Path("/positionXYZ")
+    @Path("/position")
+    @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postPositionXYZ(String token, XYZParams params) {
-        if(!checkToken(token)) {
-            return Response.ok("").build();
+    public Response postPositionXYZ(XYZParams position) {
+        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
+        try {
+            logger.info("postPositionXYZ: (" + position.x + ", " + position.y + ", " + position.z + ")");
+            dobot.moveWithSpeed(position.x, position.y, position.z, speed, acc, 1000);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else {
-            DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-            try {
-                logger.info("postPositionXYZ: (" + params.x + ", " + params.y + ", " + params.z + ")");
-                dobot.moveWithSpeed(params.x, params.y, params.z, speed, acc, 1000);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return Response.ok("").build();
-        }
+        return Response.ok("").build();
     }
 
     @GET
     @Path("/positionXYZ")
+    @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getPositionXYZ(String token, XYZParams params) {
-        if(!checkToken(token)){
-            XYZParams xyz=new XYZParams();
-            return Response.ok(xyz).build();
-        }
-        else{
-            DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-            XYZParams xyz=new XYZParams();
-            return Response.ok(xyz).build();
-        }
+    public Response getPositionXYZ() {
+        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
+        XYZParams xyz=new XYZParams();
+        return Response.ok(xyz).build();
     }
 
     @POST
     @Path("/sequence")
+    @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response sequence(String token, String seq) {
-        if(!checkToken(token)){
-            return Response.ok("").build();
-        }
-        else {
-            seq = seq.replace("\"", "");
-            DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-            try {
-                String[] lines = seq.split("\\\\n");
-                for (String line : lines) {
-                    Scanner s = new Scanner(line);
-                    String cmd = s.next().trim();
-                    if (cmd.startsWith("#"))
-                        continue;
-                    if (cmd.equals("sleep"))
-                        try {
-                            Thread.sleep(Math.min(s.nextInt() * 1000, 10000));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    if (cmd.equals("reset"))
-                        dobot.reset();
-                    else if (cmd.equals("move"))
-                        dobot.moveWithSpeed(s.nextInt(), s.nextInt(), s.nextInt(), speed, acc, 1000);
-                    else if (cmd.equals("pumpOn"))
-                        dobot.pumpOn(s.nextBoolean());
-                    else if (cmd.equals("valveOn"))
-                        dobot.valveOn(s.nextBoolean());
-                }
-            } catch (IOException e) {
-                logger.warn("Sequence error", e);
-                e.printStackTrace();
+    public Response sequence(String seq) {
+        seq = seq.replace("\"", "");
+        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
+        try {
+            String[] lines = seq.split("\\\\n");
+            for (String line : lines) {
+                Scanner s = new Scanner(line);
+                String cmd = s.next().trim();
+                if (cmd.startsWith("#"))
+                    continue;
+                if (cmd.equals("sleep"))
+                    try {
+                        Thread.sleep(Math.min(s.nextInt() * 1000, 10000));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                if (cmd.equals("reset"))
+                    dobot.reset();
+                else if (cmd.equals("move"))
+                    dobot.moveWithSpeed(s.nextInt(), s.nextInt(), s.nextInt(), speed, acc, 1000);
+                else if (cmd.equals("pumpOn"))
+                    dobot.pumpOn(s.nextBoolean());
+                else if (cmd.equals("valveOn"))
+                    dobot.valveOn(s.nextBoolean());
             }
-
-            System.out.println(seq);
-            return Response.ok("").build();
+        } catch (IOException e) {
+            logger.warn("Sequence error", e);
+            e.printStackTrace();
         }
-    }
+
+        System.out.println(seq);
+        return Response.ok("").build();
+}
 
     @POST
-    @Path("/grabOn")
+    @Path("/grabOn/{value}")
+    @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response grabOn(String token, boolean value) {
-        if(!checkToken(token))
-        {
-            return Response.ok("").build();
-        }else{
+    public Response grabOn(@PathParam("value") boolean value) {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
         try {
             dobot.pumpOn(value);
@@ -152,64 +136,50 @@ public class Service {
             e.printStackTrace();
         }
         return Response.ok("").build();
-        }
     }
 
-    @POST
-    @Path("/pumpOn")
+    @PUT
+    @Path("/pumpOn/{value}")
+    @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response pumpOn(String token, boolean value) {
-        if(!checkToken(token)) {
-            return Response.ok("").build();
+    public Response pumpOn(@PathParam("value") boolean value) {
+        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
+        try {
+            dobot.pumpOn(value);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else {
-            DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-            try {
-                dobot.pumpOn(value);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return Response.ok("").build();
-        }
+        return Response.ok("").build();
     }
 
-    @POST
-    @Path("/valveOn")
+    @PUT
+    @Path("/valveOn/{value}")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response valveOn(String token, boolean value) {
-        if(!checkToken(token)) {
-            return Response.ok("").build();
+    public Response valveOn(@PathParam("value") boolean value) {
+        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
+        try {
+            dobot.valveOn(value);
+            logger.info("Valve: " + value);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else {
-            DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-            try {
-                dobot.valveOn(value);
-                logger.info("Valve: " + value);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return Response.ok("").build();
-        }
+        return Response.ok("").build();
     }
 
     @POST
     @Path("/reset")
+    @Secured
     @Produces(MediaType.APPLICATION_JSON)
-    public Response reset(String token) {
-        if(!checkToken(token)) {
-            return Response.ok("RESET").build();
+    public Response reset() {
+        DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
+        try {
+            dobot.reset();
+        } catch (IOException e) {
+            logger.error("reset failed ", e);
         }
-        else {
-            DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
-            try {
-                dobot.reset();
-            } catch (IOException e) {
-                logger.error("reset failed ", e);
-            }
-            return Response.ok("RESET").build();
-        }
+        return Response.ok("RESET").build();
     }
 
     @GET
@@ -221,9 +191,5 @@ public class Service {
         } catch (Exception e) {
             return Response.serverError().entity(e.toString()).build();
         }
-    }
-
-    private boolean checkToken(String token){
-        return false;
     }
 }
