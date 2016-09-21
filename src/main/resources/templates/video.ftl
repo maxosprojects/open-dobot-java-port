@@ -1,4 +1,6 @@
-<!--<script type="text/javascript" src="${jsmpgpath}"></script>-->
+<script type="text/javascript" src="${staticpath}/js/jsmpg.js"></script>
+<script type="text/javascript" src="${staticpath}/js/reconnecting-websocket.js"></script>
+
 <div class="panel panel-default">
   <div class="panel-body">
 <div id="wrapper">
