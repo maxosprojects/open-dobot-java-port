@@ -3,8 +3,10 @@ package org.omilab.omirob;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -14,13 +16,15 @@ import org.omilab.omirob.microservice.PSMConnectorMgmt;
 import org.omilab.omirob.microservice.PSMConnectorView;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.omilab.omirob.opendobot.OpenDobotDriver;
-import org.omilab.omirob.streaming.FFMpegThread;
-import org.omilab.omirob.streaming.ServiceStream;
-import org.omilab.omirob.streaming.ServiceWS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import javax.websocket.server.ServerContainer;
 import java.io.IOException;
+import java.util.EnumSet;
+
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -59,31 +63,16 @@ public class Main {
             config.register(PSMConnectorMgmt.class);
             config.register(PSMConnectorView.class);
             config.register(JacksonFeature.class);
+            //config.register(CORSFilter.class);
             config.property("dobotSDK",db);
-            config.register(JacksonFeature.class);
             ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));
             context.addServlet(jerseyServlet, "/*");
-            context.addServlet(ServiceStream.class, "/stream/input");
             server.setHandler(context);
-
-
             // Initialize javax.websocket layer
             ServerContainer wscontainer = WebSocketServerContainerInitializer.configureContext(context);
-
             // Add WebSocket endpoint to javax.websocket layer
-            wscontainer.addEndpoint(ServiceWS.class);
             server.start();
             server.dump(System.err);
-            if(Settings.ffmpegCmd.trim().length()>0)
-                try{
-                    Thread t=new Thread(new FFMpegThread(Settings.ffmpegCmd));
-                    t.start();
-                }catch (Exception e){
-                    logger.warn("Failed to start ffmpeg");
-                }
-            else
-                logger.info("ffmpegCmd empty, not starting ffmpeg");
-
             server.join();
         } catch (Throwable t) {
             t.printStackTrace(System.err);

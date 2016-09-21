@@ -70,6 +70,11 @@
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlets</artifactId>
+        <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-util</artifactId>
         <version>${jetty.version}</version>
     </dependency>
@@ -102,6 +107,11 @@
         <version>${jetty.version}</version>
     </dependency>
     <!--Jetty Websocket client side  dependencies end here -->
+    <dependency>
+        <groupId>org.hashids</groupId>
+        <artifactId>hashids</artifactId>
+        <version>1.0.1</version>
+    </dependency>
 </dependencies>
 
     <build>
@@ -141,9 +151,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
+                    <!--<compilerArgs>-->
+                        <!--<arg>-parameters</arg>-->
+                    <!--</compilerArgs>-->
                 </configuration>
             </plugin>
     <!--<plugin>-->

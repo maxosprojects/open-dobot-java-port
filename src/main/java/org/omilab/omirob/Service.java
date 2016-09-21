@@ -1,6 +1,7 @@
 package org.omilab.omirob;
 
 import freemarker.template.TemplateException;
+import org.hashids.Hashids;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -28,15 +28,37 @@ public class Service {
     private static int acc = 50;
 
     public Service() {
-
     }
 
     @GET
     public Response getIndex() throws IOException, TemplateException {
-        ByteArrayOutputStream bos = Freemarker.process(new HashMap(), "video");
+        HashMap vals=new HashMap();
+        vals.put("jsmpgpath",".");
+        vals.put("streams", Settings.streams);
+        vals.put("publicURL", Settings.publicURL);
+        ByteArrayOutputStream bos = Freemarker.process(vals, "video");
         return Response.status(200).entity(bos.toString()).build();
     }
 
+    @GET
+    @Path("/auth")
+    @Produces(MediaType.TEXT_HTML)
+    public Response getAuth() throws IOException, TemplateException {
+
+        Hashids hashids = new Hashids(Settings.salt);
+        for(int i=0;i<48;i++){
+            //long[] numbers = hashids.encode();
+        }
+
+
+
+        HashMap vals=new HashMap();
+        vals.put("jsmpgpath",".");
+        vals.put("streams", Settings.streams);
+        vals.put("publicURL", Settings.publicURL);
+        ByteArrayOutputStream bos = Freemarker.process(vals, "auth");
+        return Response.status(200).entity(bos.toString()).build();
+    }
 
     @POST
     @Path("/move")
@@ -57,7 +79,7 @@ public class Service {
     @Path("/sequence")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response move(String seq) {
+    public Response sequence(String seq) {
         seq=seq.replace("\"","");
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
         try {
