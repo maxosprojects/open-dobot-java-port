@@ -136,7 +136,7 @@ public class Service {
     }
 
     @POST
-    @Path("/pumpOn")
+    @Path("/grabOn")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response grabOn(String token, boolean value) {
