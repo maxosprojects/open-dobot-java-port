@@ -4,14 +4,11 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import org.omilab.omirob.Freemarker;
-import org.omilab.omirob.Main;
 import org.omilab.omirob.Settings;
-import org.omilab.omirob.StreamInfo;
 import org.omilab.omirob.microservice.model.GenericRequest;
 import org.omilab.omirob.microservice.model.GenericServiceContent;
 import org.omilab.omirob.slots.Slot;
 import org.omilab.omirob.slots.SlotDao;
-import org.omilab.omirob.slots.Slots;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.util.*;
@@ -29,10 +25,9 @@ public final class PSMConnectorView {
 	private final static Logger logger = LoggerFactory.getLogger(PSMConnectorView.class);
 
 	private static final int NUM_SLOTS = 48;
-	private static Slots slots;
 
 	public PSMConnectorView() {
-		slots=SlotDao.readSlots("slots.txt");
+
 	}
 
 	@POST
@@ -81,6 +76,7 @@ public final class PSMConnectorView {
 
 	private GenericServiceContent auth(HttpServletRequest servletRequest, GenericRequest request) {
 		try{
+			HashMap<Integer, Slot> slots = SlotDao.getSlots();
 			synchronized (slots) {
 				String button = request.getParams().get("action");
 				String userName=request.getUsername().trim();
@@ -91,7 +87,7 @@ public final class PSMConnectorView {
 						&& !request.getUsername().equals("anonymousUser")) {
 					vals.put("method","post");
 					int slotNumber = Integer.parseInt(button);
-					Slot slot = slots.slots.get(slotNumber);
+					Slot slot = slots.get(slotNumber);
 					if (slot == null) {
 						slot = new Slot();
 						slot.userName = request.getUsername();
@@ -100,15 +96,15 @@ public final class PSMConnectorView {
 						byte[] bytes = new byte[10];
 						random.nextBytes(bytes);
 						slot.secret = Base64.getEncoder().encodeToString(bytes);
-						slots.slots.put(slotNumber, slot);
-						SlotDao.writeSlots(slots, "slots.txt");
+						slots.put(slotNumber, slot);
+						SlotDao.save(slots);
 					} else if (slot.userName.equals(request.getUsername())) {
-						slots.slots.remove(slotNumber);
-						SlotDao.writeSlots(slots, "slots.txt");
+						slots.remove(slotNumber);
+						SlotDao.save(slots);
 					}
 				}
 				String authToken="";
-				for(Slot s:slots.slots.values()){
+				for(Slot s: slots.values()){
 					if(s.userName.equals(userName))
 						authToken+=s.secret+",";
 				}
@@ -118,7 +114,7 @@ public final class PSMConnectorView {
 
 				HashMap s = new LinkedHashMap();
 				for (int i = 0; i < NUM_SLOTS; i++) {
-					s.put(i, slots.slots.get(i));
+					s.put(i, slots.get(i));
 				}
 				vals.put("slots", s);
 				vals.put("userName", request.getUsername());

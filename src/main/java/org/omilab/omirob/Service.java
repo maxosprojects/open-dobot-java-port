@@ -1,10 +1,9 @@
 package org.omilab.omirob;
 
 import freemarker.template.TemplateException;
-import org.hashids.Hashids;
 import org.omilab.omirob.opendobot.DobotSDK;
+import org.omilab.omirob.slots.Slot;
 import org.omilab.omirob.slots.SlotDao;
-import org.omilab.omirob.slots.Slots;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,26 +16,21 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Random;
 import java.util.Scanner;
 
 @Path("/")
 public class Service {
     private final static Logger logger = LoggerFactory.getLogger(Service.class);
     private static final int NUM_SLOTS = 48;
-    private static Slots slots=new Slots();
     @Context
     Configuration configuration;
 
     private static int speed = 50;
     private static int acc = 50;
 
-
     public Service() {
-        slots=SlotDao.readSlots("slots.txt");
     }
 
     @GET
@@ -54,8 +48,9 @@ public class Service {
     @Produces(MediaType.TEXT_HTML)
     public Response getAuth() throws IOException, TemplateException {
         HashMap s=new LinkedHashMap();
+        HashMap<Integer, Slot> slots = SlotDao.getSlots();
         for(int i=0;i<NUM_SLOTS;i++){
-            s.put(i,slots.slots.get(i));
+            s.put(i, slots.get(i));
         }
         HashMap vals=new HashMap();
         vals.put("slots",s);
