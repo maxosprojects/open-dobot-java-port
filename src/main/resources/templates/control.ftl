@@ -13,7 +13,7 @@
             </div>
             <div class="row">
                 <button type="button" class="btn btn-primary btn-warning" id="btnReset">Reset</button>
-                <button type="button" class="btn btn-primary btn-warning" id="btnTest">Test</button>
+                <button type="button" class="btn btn-primary btn-warning" id="btnTest" disabled>Test</button>
             </div>
             <div class="row">
                 <label class="checkbox-inline"><input type="checkbox" value="" id="cbValve">Valve</label>
@@ -88,14 +88,13 @@ move 200 0 120
         event.preventDefault(); // To prevent following the link (optional)
         console.log('cbValve');
         $.ajax({
-            type: 'POST',
+            type: 'PUT',
             contentType: 'application/json',
-            url: '${publicURL}/valveOn',
+            url: '${publicURL}/valveOn/'+this.checked,
             dataType: "json",
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
-            data: JSON.stringify(this.checked),
             success: function(data, textStatus, jqXHR){
                 console.log('cbValve success');
             },
@@ -109,14 +108,13 @@ move 200 0 120
         event.preventDefault(); // To prevent following the link (optional)
         console.log('cbPump');
         $.ajax({
-            type: 'POST',
+            type: 'PUT',
             contentType: 'application/json',
-            url: '${publicURL}/pumpOn',
+            url: '${publicURL}/pumpOn/'+this.checked,
             dataType: "json",
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
-            data: JSON.stringify(this.checked),
             success: function(data, textStatus, jqXHR){
                 console.log('cbPump success');
             },
@@ -149,7 +147,7 @@ move 200 0 120
         event.preventDefault(); // To prevent following the link (optional)
         console.log('btnMove');
         $.ajax({
-            type: 'POST',
+            type: 'PUT',
             contentType: 'application/json',
             url: '${publicURL}/positionXYZ',
             dataType: "json",

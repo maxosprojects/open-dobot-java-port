@@ -61,7 +61,7 @@ public class Service {
         return Response.status(200).entity(bos.toString()).build();
     }
 
-    @POST
+    @PUT
     @Path("/positionXYZ")
     @Secured
     @Produces(MediaType.TEXT_PLAIN)
