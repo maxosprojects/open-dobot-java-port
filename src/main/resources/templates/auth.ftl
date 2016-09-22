@@ -22,7 +22,7 @@ tokens: "${authToken}"
                             <#elseif value.userName==userName> class="btn btn-primary"
                             <#else> class="btn btn-secondary" disabled
                             </#if>
-                        >${key},
+                        >${(key/2)?floor}:${(key%2*30)}
                         <#if (value??)>"${value.userName}"
                         <#else>(free)
                         </#if>

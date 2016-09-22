@@ -9,6 +9,9 @@
     <div id="page-content-wrapper">
         <div class="container-fluid">
             <div class="row">
+                token: <input type="text"  class="form-control" id="token">
+            </div>
+            <div class="row">
                 <button type="button" class="btn btn-primary btn-warning" id="btnReset">Reset</button>
                 <button type="button" class="btn btn-primary btn-warning" id="btnTest">Test</button>
             </div>
@@ -68,6 +71,9 @@ move 200 0 120
             contentType: 'application/json',
             url: '${publicURL}/reset',
             dataType: "json",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
+            },
             //data: formToJSON(),
             success: function(data, textStatus, jqXHR){
                 console.log('btnReset success');
@@ -86,6 +92,9 @@ move 200 0 120
             contentType: 'application/json',
             url: '${publicURL}/valveOn',
             dataType: "json",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
+            },
             data: JSON.stringify(this.checked),
             success: function(data, textStatus, jqXHR){
                 console.log('cbValve success');
@@ -104,6 +113,9 @@ move 200 0 120
             contentType: 'application/json',
             url: '${publicURL}/pumpOn',
             dataType: "json",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
+            },
             data: JSON.stringify(this.checked),
             success: function(data, textStatus, jqXHR){
                 console.log('cbPump success');
@@ -122,7 +134,9 @@ move 200 0 120
             contentType: 'application/json',
             url: '${publicURL}/test1',
             dataType: "json",
-            //data: formToJSON(),
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
+            },
             success: function(data, textStatus, jqXHR){
                 console.log('btnTest success');
             },
@@ -137,8 +151,11 @@ move 200 0 120
         $.ajax({
             type: 'POST',
             contentType: 'application/json',
-            url: '${publicURL}/move',
+            url: '${publicURL}/positionXYZ',
             dataType: "json",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
+            },
             data: formToJSON(),
             success: function(data, textStatus, jqXHR){
                 console.log('btnMove success');
@@ -157,6 +174,9 @@ move 200 0 120
             contentType: 'application/json',
             url: '${publicURL}/sequence',
             dataType: "json",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
+            },
             data: JSON.stringify($('#txtSequence').val()),
             success: function(data, textStatus, jqXHR){
                 console.log('btnSequence success');
