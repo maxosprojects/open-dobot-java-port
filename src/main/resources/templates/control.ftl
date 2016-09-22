@@ -1,4 +1,5 @@
 <script type="text/javascript" src="${staticpath}/js/jsmpg.js"></script>
+<script type="text/javascript" src="${staticpath}/js/jquery-3.1.0.min.js"></script>
 <script type="text/javascript" src="${staticpath}/js/reconnecting-websocket.js"></script>
 
 <div class="panel panel-default">
@@ -174,4 +175,3 @@ move 200 0 120
         });
     }
 </script>
-

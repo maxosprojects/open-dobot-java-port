@@ -6,5 +6,17 @@ package org.omilab.omirob.slots;
 public class Slot {
     public int which;
     public String userName;
-    public long secret;
+    public String secret;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public int getWhich() {
+        return which;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
 }
