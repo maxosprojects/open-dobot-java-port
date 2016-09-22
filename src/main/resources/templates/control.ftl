@@ -70,11 +70,9 @@ move 200 0 120
             type: 'POST',
             contentType: 'application/json',
             url: '${publicURL}/reset',
-            dataType: "json",
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
-            //data: formToJSON(),
             success: function(data, textStatus, jqXHR){
                 console.log('btnReset success');
             },
@@ -91,7 +89,6 @@ move 200 0 120
             type: 'PUT',
             contentType: 'application/json',
             url: '${publicURL}/valveOn/'+this.checked,
-            dataType: "json",
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
@@ -111,7 +108,6 @@ move 200 0 120
             type: 'PUT',
             contentType: 'application/json',
             url: '${publicURL}/pumpOn/'+this.checked,
-            dataType: "json",
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
@@ -131,7 +127,6 @@ move 200 0 120
             type: 'POST',
             contentType: 'application/json',
             url: '${publicURL}/test1',
-            dataType: "json",
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
