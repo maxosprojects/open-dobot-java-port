@@ -146,7 +146,6 @@ public class DobotSDK implements IDobotSDK {
             //    rearAngle =0
             //    frontAngle =-piHalf
         }
-        baseSteps =0;
         rearSteps = (float) ((rearAngle /piTwo) *rearArmActualStepsPerRevolution +0.5);
         frontSteps = (float) ((frontAngle /piTwo) *frontArmActualStepsPerRevolution +0.5);
         driver.setCounters((int)baseSteps,(int)rearSteps,(int)frontSteps);
@@ -158,7 +157,6 @@ public class DobotSDK implements IDobotSDK {
         float currFrontAngle =piTwo * frontSteps / frontArmActualStepsPerRevolution;
         Point3f coords = kinematics.coordinatesFromAngles(currBaseAngle, currRearAngle, currFrontAngle);
         logger.info(String.format("Current estimated coordinates: %.2f %.2f %.2f",coords.x, coords.y, coords.z));
-
     }
 
     private void _moveArmToAngles() {
