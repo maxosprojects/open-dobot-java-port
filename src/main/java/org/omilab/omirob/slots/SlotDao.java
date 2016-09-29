@@ -68,4 +68,11 @@ public class SlotDao {
         }
         return new HashMap<Integer, Slot>(_slots);
     }
+
+    public static void clear() {
+        logger.info("clear slot database");
+        synchronized (SlotDao.class) {
+            save(new HashMap<>());
+        }
+    }
 }

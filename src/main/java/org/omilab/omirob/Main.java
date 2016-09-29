@@ -1,6 +1,7 @@
 package org.omilab.omirob;
 
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
+import it.sauronsoftware.cron4j.Scheduler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -16,6 +17,7 @@ import org.omilab.omirob.microservice.PSMConnectorMgmt;
 import org.omilab.omirob.microservice.PSMConnectorView;
 import org.omilab.omirob.opendobot.DobotSDK;
 import org.omilab.omirob.opendobot.OpenDobotDriver;
+import org.omilab.omirob.slots.SlotDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +76,16 @@ public class Main {
             // Add WebSocket endpoint to javax.websocket layer
             server.start();
             server.dump(System.err);
+            startScheduler();
             server.join();
         } catch (Throwable t) {
             t.printStackTrace(System.err);
         }
+    }
+
+    private static void startScheduler(){
+        Scheduler s = new Scheduler();
+        s.schedule("* * * 0 0", () -> SlotDao.clear());
+        s.start();
     }
 }
