@@ -109,8 +109,9 @@ public class Service {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                if (cmd.equals("reset"))
+                if (cmd.equals("reset")) {
                     dobot.reset();
+                }
                 else if (cmd.equals("move"))
                     dobot.moveWithSpeed(s.nextInt(), s.nextInt(), s.nextInt(), speed, acc, 1000);
                 else if (cmd.equals("pumpOn"))
@@ -181,7 +182,12 @@ public class Service {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
         try {
             dobot.reset();
+            dobot.calibrate();
+            Thread.sleep(3000);
+            dobot.reset();
         } catch (IOException e) {
+            logger.error("reset failed ", e);
+        } catch (InterruptedException e) {
             logger.error("reset failed ", e);
         }
         return Response.ok("RESET").build();
