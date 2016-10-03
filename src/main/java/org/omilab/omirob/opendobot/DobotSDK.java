@@ -504,4 +504,14 @@ public class DobotSDK implements IDobotSDK {
         init();
     }
 
+    public void calibrate() throws IOException {
+
+        driver.calibrateJoint(1,
+                freqToCmdVal(50),
+                freqToCmdVal(50),
+                0,
+                0,
+                1,
+                0);
+    }
 }
