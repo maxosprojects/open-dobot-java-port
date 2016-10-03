@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.util.Enumeration;
-
 import static org.omilab.omirob.opendobot.DobotKinematics.piHalf;
 
 /**
@@ -345,6 +343,44 @@ public class OpenDobotDriver {
         return res;
     }
 
+    public boolean calibrateJoint(int joint, int forwardCommand, int backwardCommand, int direction, int pin, int pinMode, int pullup) throws IOException {
+//    Initiates joint calibration procedure using a limit switch/photointerrupter. Effective immediately.
+//    Current command buffer is cleared.
+//    Cancel the procedure by issuing EmergencyStop() is necessary.
+//
+//    @param joint - which joint to calibrate: 1-3
+//    @param forwardCommand - command to send to the joint when moving forward (towards limit switch);
+//    use freqToCmdVal()
+//    @param backwardCommand - command to send to the joint after hitting  (towards limit switch);
+//    use freqToCmdVal()
+//    @param direction - direction to move joint towards limit switch/photointerrupter: 0-1
+//    @param pin - firmware internal pin reference number that limit switch is connected to;
+//    refer to dobot.h -> calibrationPins
+//    @param pinMode - limit switch/photointerrupter normal LOW = 0, normal HIGH = 1
+//    @param pullup - enable pullup on the pin = 1, disable = 0
+//    @return True if command succesfully received, False otherwise.
+
+        if (1 > joint || joint > 3)
+            return false;
+        byte control = (byte) (((pinMode & 0x01) << 4) | ((pullup & 0x01) << 3) | ((direction & 0x01) << 2) | ((joint - 1) & 0x03));
+        int trys=10;
+        while(trys>0)
+        {
+            sendcommand(CMD_CALIBRATE_JOINT);
+            writelong(forwardCommand);
+            writelong(backwardCommand);
+            writebyte((byte) pin);
+            writebyte( control);
+            writechecksum();
+            int[] crcword = readchecksumword();
+            if (crcword[0] != 1)
+                if ((crc & 0xFFFF) == (crcword[1] & 0xFFFF))
+                    return true;
+            trys--;
+        }
+        logger.warn("CRC error");
+        return false;
+    }
 
 
     public int freqToCmdVal(float freq) {
