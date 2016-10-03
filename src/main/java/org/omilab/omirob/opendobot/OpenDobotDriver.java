@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static org.omilab.omirob.opendobot.DobotKinematics.piHalf;
+import static org.omilab.omirob.opendobot.DobotKinematics.piTwo;
 
 /**
  * Created by Martin on 02.08.2016.
@@ -362,7 +363,10 @@ public class OpenDobotDriver {
 
         if (1 > joint || joint > 3)
             return false;
-        byte control = (byte) (((pinMode & 0x01) << 4) | ((pullup & 0x01) << 3) | ((direction & 0x01) << 2) | ((joint - 1) & 0x03));
+        byte control = (byte) (((pinMode & 0x01) << 4) |
+                                ((pullup & 0x01) << 3) |
+                                ((direction & 0x01) << 2) |
+                                ((joint - 1) & 0x03));
         int trys=10;
         while(trys>0)
         {
@@ -383,13 +387,13 @@ public class OpenDobotDriver {
     }
 
 
-    public int freqToCmdVal(float freq) {
+    public int freqToCmdVal(int freq) {
 //        '''
 //        Converts stepping frequency into a command value that dobot takes.
 //        '''
         if (freq == 0)
             return stopSeq;
-        return Integer.reverseBytes((int) ((freqCoeff) / freq));
+        return Integer.reverseBytes(freqCoeff / freq);
     }
 
 
@@ -442,4 +446,5 @@ public class OpenDobotDriver {
         }
 
     }
+
 }

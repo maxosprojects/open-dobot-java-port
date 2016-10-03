@@ -78,8 +78,10 @@ public class DobotSDK implements IDobotSDK {
             baseSteps = 0L;
             rearSteps = 0L;
             frontSteps = 0L;
-        } else
+        } else{
             InitializeAccelerometers();
+        }
+
     }
 
     @Override
@@ -157,58 +159,68 @@ public class DobotSDK implements IDobotSDK {
         float currFrontAngle =piTwo * frontSteps / frontArmActualStepsPerRevolution;
         Point3f coords = kinematics.coordinatesFromAngles(currBaseAngle, currRearAngle, currFrontAngle);
         logger.info(String.format("Current estimated coordinates: %.2f %.2f %.2f",coords.x, coords.y, coords.z));
+        logger.info(String.format("Current estimated angles: %.2f %.2f %.2f", currBaseAngle, currRearAngle, currFrontAngle));
+
     }
 
-    private void _moveArmToAngles() {
+    private void moveArmToAngles(float baseAngle, float rearArmAngle, float frontArmAngle, float duration) throws IOException {
 //    def _moveArmToAngles(self, baseAngle, rearArmAngle, frontArmAngle, duration):
 //    self._baseAngle = baseAngle
 //    self._rearAngle = rearArmAngle
 //    self._frontAngle = frontArmAngle
 //    dur = float(duration)
 //
-//		// baseStepLocation = long((baseAngle / 360.0) * baseActualStepsPerRevolution + 0.5)
-//            // rearArmStepLocation = long((abs(rearArmAngle) / 360.0) * rearArmActualStepsPerRevolution + 0.5)
-//            // frontArmStepLocation = long((abs(frontArmAngle) / 360.0) * frontArmActualStepsPerRevolution + 0.5)
-//    baseStepLocation = long(baseAngle * baseActualStepsPerRevolution / piTwo)
-//    rearArmStepLocation = long(rearArmAngle * rearArmActualStepsPerRevolution / piTwo)
-//    frontArmStepLocation = long(frontArmAngle * frontArmActualStepsPerRevolution / piTwo)
+    int baseStepLocation = (int) (baseAngle * baseActualStepsPerRevolution / piTwo);
+    int rearArmStepLocation = (int) (rearArmAngle * rearArmActualStepsPerRevolution / piTwo);
+    int frontArmStepLocation = (int) (frontArmAngle * frontArmActualStepsPerRevolution / piTwo);
 //
 //		self._debug("Base Step Location", baseStepLocation)
 //            self._debug("Rear Arm Step Location", rearArmStepLocation)
 //            self._debug("Frontarm Step Location", frontArmStepLocation)
 //
-//    baseDiff = baseStepLocation - self._baseSteps
-//            rearDiff = rearArmStepLocation - self._rearSteps
-//    frontDiff = frontArmStepLocation - self._frontSteps
+    float  baseDiff = baseStepLocation - baseSteps;
+    float rearDiff = rearArmStepLocation - rearSteps;
+    float frontDiff = frontArmStepLocation - frontSteps;
 //		self._debug(""baseDiff"", baseDiff)
 //            self._debug(""rearDiff"", rearDiff)
 //            self._debug(""frontDiff"", frontDiff)
 //
-//    self._baseSteps = baseStepLocation
-//    self._rearSteps = rearArmStepLocation
-//    self._frontSteps = frontArmStepLocation
+    baseSteps = baseStepLocation;
+    rearSteps = rearArmStepLocation;
+    frontSteps = frontArmStepLocation;
 //
-//            baseDir = 1
-//    rearDir = 1
-//    frontDir = 1
+int baseDir = 1;
+int rearDir = 1;
+int frontDir = 1;
+if (baseDiff < 1)
+    baseDir = 0;
+if (rearDiff < 1)
+    rearDir = 0;
+if (frontDiff > 1)
+    frontDir = 0;
 //
-//            if (baseDiff < 1):
-//    baseDir = 0
-//            if (rearDiff < 1):
-//    rearDir = 0
-//            if (frontDiff > 1):
-//    frontDir = 0
-//
-//    baseSliced = self._sliceStepsToValues(abs(baseDiff), dur)
-//    rearSliced = self._sliceStepsToValues(abs(rearDiff), dur)
-//    frontSliced = self._sliceStepsToValues(abs(frontDiff), dur)
+// int baseSliced = sliceStepsToValues(abs(baseDiff), dur);
+// int rearSliced = sliceStepsToValues(abs(rearDiff), dur);
+//int frontSliced = _sliceStepsToValues(abs(frontDiff), dur);
 //
 //            for base, rear, front in zip(baseSliced, rearSliced, frontSliced):
 //    ret = [0, 0]
 //            // If ret[0] == 0 then command timed out or crc failed.
 //			// If ret[1] == 0 then command queue was full.
 //			while ret[0] == 0 or ret[1] == 0:
-//    ret = self._driver.Steps(base, rear, front, baseDir, rearDir, frontDir)
+
+        int slices=200;
+        for(int i=0;i<slices;i++) {
+            while (true) {
+                int basecmd=driver.stepsToCmdValFloat(Math.abs(baseDiff)/slices).cmd;
+                int rearcmd=driver.stepsToCmdValFloat(Math.abs(rearDiff)/slices).cmd;
+                int frontcmd=driver.stepsToCmdValFloat(Math.abs(frontDiff)/slices).cmd;
+                byte ret = driver.steps(basecmd, rearcmd, frontcmd, baseDir, rearDir, frontDir,
+                        (short) gripper, (short) toolRotation);
+                if (ret == 1)
+                    break;
+            }
+        }
     }
 
     private float[] moveToAnglesSlice(float baseAngle, float rearArmAngle, float frontArmAngle, int toolRotation) throws IOException {
@@ -294,7 +306,7 @@ public class DobotSDK implements IDobotSDK {
             (front.leftOver * frontSign)};
     }
 
-    private int freqToCmdVal(float freq) {
+    private int freqToCmdVal(int freq) {
         return driver.freqToCmdVal(freq);
     }
 
@@ -505,13 +517,17 @@ public class DobotSDK implements IDobotSDK {
     }
 
     public void calibrate() throws IOException {
-
+        moveArmToAngles(0, 0.2f, 0.2f,5);
         driver.calibrateJoint(1,
-                freqToCmdVal(50),
-                freqToCmdVal(50),
+                freqToCmdVal(1500),
+                freqToCmdVal(1500),
                 0,
                 0,
-                1,
+                0,
                 0);
+        baseSteps = (float) ((1.48f / piTwo) * baseActualStepsPerRevolution +0.5);
+        moveArmToAngles(0, 0.2f, 0.2f,5);
+        moveWithSpeed(250,0,150,20,5,0);
     }
+
 }
