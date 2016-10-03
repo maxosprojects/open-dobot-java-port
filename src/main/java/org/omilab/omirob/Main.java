@@ -85,7 +85,9 @@ public class Main {
 
     private static void startScheduler(){
         Scheduler s = new Scheduler();
-        s.schedule("* * * 0 0", () -> SlotDao.clear());
+        final String pattern="0 0 * * *";
+        s.schedule(pattern, () -> SlotDao.clear());
+        logger.info("Scheduling clean task with pattern: \""+ pattern+"\"");
         s.start();
     }
 }
