@@ -41,7 +41,7 @@ public class OpenDobotDriver {
     static int stopSeq=0x0242f000;
     public boolean ramps=false;
     public int stepCoeffOver2;
-    public int freqCoeff;
+    public int freqCoeff= stepCoeff * 25;
     private boolean fpga=true;
     private SerialPort port;
 
@@ -370,7 +370,7 @@ public class OpenDobotDriver {
             writelong(forwardCommand);
             writelong(backwardCommand);
             writebyte((byte) pin);
-            writebyte( control);
+            writebyte(control);
             writechecksum();
             int[] crcword = readchecksumword();
             if (crcword[0] != 1)
