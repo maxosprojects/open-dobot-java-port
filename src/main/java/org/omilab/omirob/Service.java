@@ -26,7 +26,6 @@ public class Service {
     private static final int NUM_SLOTS = 48;
     @Context
     Configuration configuration;
-
     private static int speed = 50;
     private static int acc = 50;
 
@@ -55,7 +54,7 @@ public class Service {
         HashMap vals=new HashMap();
         vals.put("slots",s);
         vals.put("userName","");
-        vals.put("staticpath",Settings.publicURL+"/static/");
+        vals.put("staticpath", Settings.publicURL+"/static/");
         vals.put("publicURL", Settings.publicURL);
         ByteArrayOutputStream bos = Freemarker.process(vals, "auth");
         return Response.status(200).entity(bos.toString()).build();
@@ -64,7 +63,7 @@ public class Service {
     @PUT
     @Path("/positionXYZ")
     @Secured
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response postPositionXYZ(XYZParams position) {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
@@ -80,7 +79,7 @@ public class Service {
     @GET
     @Path("/positionXYZ")
     @Secured
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getPositionXYZ() {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
@@ -129,11 +128,11 @@ public class Service {
 }
 
     @POST
-    @Path("/grabOn/{value}")
+    @Path("/grabOn")
     @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response grabOn(@PathParam("value") boolean value) {
+    public Response grabOn(boolean value) {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
         try {
             dobot.pumpOn(value);
@@ -145,11 +144,11 @@ public class Service {
     }
 
     @PUT
-    @Path("/pumpOn/{value}")
+    @Path("/pumpOn")
     @Secured
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response pumpOn(@PathParam("value") boolean value) {
+    public Response pumpOn(boolean value) {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
         try {
             dobot.pumpOn(value);
@@ -160,10 +159,10 @@ public class Service {
     }
 
     @PUT
-    @Path("/valveOn/{value}")
+    @Path("/valveOn")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response valveOn(@PathParam("value") boolean value) {
+    public Response valveOn(boolean value) {
         DobotSDK dobot = (DobotSDK) configuration.getProperty("dobotSDK");
         try {
             dobot.valveOn(value);
@@ -183,7 +182,7 @@ public class Service {
         try {
             dobot.reset();
             dobot.calibrate();
-            Thread.sleep(3000);
+            Thread.sleep(3000); //Wait for cmdqueue
             dobot.reset();
         } catch (IOException e) {
             logger.error("reset failed ", e);

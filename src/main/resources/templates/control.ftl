@@ -88,7 +88,8 @@ move 200 0 120
         $.ajax({
             type: 'PUT',
             contentType: 'application/json',
-            url: '${publicURL}/valveOn/'+this.checked,
+            url: '${publicURL}/valveOn',
+            data: JSON.stringify(this.checked),
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },
@@ -107,7 +108,8 @@ move 200 0 120
         $.ajax({
             type: 'PUT',
             contentType: 'application/json',
-            url: '${publicURL}/pumpOn/'+this.checked,
+            url: '${publicURL}/pumpOn',
+            data: JSON.stringify(this.checked),
             beforeSend : function(xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + $('#token').val());
             },

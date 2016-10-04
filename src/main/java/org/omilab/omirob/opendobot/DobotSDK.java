@@ -524,10 +524,11 @@ public class DobotSDK implements IDobotSDK {
     }
 
     public void calibrate() throws IOException {
+        baseSteps=0;
         moveArmToAngles(0, 0.2f, 0.2f,5);
         driver.calibrateJoint(1,
-                freqToCmdVal(1500),
-                freqToCmdVal(1500),
+                freqToCmdVal(500),
+                freqToCmdVal(500),
                 0,
                 0,
                 0,
