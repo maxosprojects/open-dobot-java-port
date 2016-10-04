@@ -1,5 +1,6 @@
 package org.omilab.omirob.opendobot;
 
+import org.omilab.omirob.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -533,7 +534,7 @@ public class DobotSDK implements IDobotSDK {
                 0,
                 0,
                 0);
-        baseSteps = (float) ((1.48f / piTwo) * baseActualStepsPerRevolution +0.5);
+        baseSteps = (float) ((Settings.baseCalibration/ piTwo) * baseActualStepsPerRevolution +0.5);
         moveArmToAngles(0, 0.2f, 0.2f,5);
     }
 

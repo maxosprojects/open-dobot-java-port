@@ -22,6 +22,7 @@ public class Settings {
     public static StreamInfo[] streams;
     public static String publicURL;
     public static String salt;
+    public static float baseCalibration;
 
 
     static {
@@ -39,6 +40,7 @@ public class Settings {
             prop.load(input);
             portName=prop.getProperty("portName","ttyUSB1");
             port=Integer.parseInt(prop.getProperty("port", "8080"));
+            baseCalibration=Float.parseFloat(prop.getProperty("baseCalibration","1.48"));
 
             List<StreamInfo> streamList=new ArrayList<StreamInfo>();
             for(int i=0;true;i++){
