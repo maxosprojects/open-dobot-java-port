@@ -1,5 +1,6 @@
 package org.omilab.omirob.opendobot;
 
+import org.omilab.omirob.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,58 +165,65 @@ public class DobotSDK implements IDobotSDK {
     }
 
     private void moveArmToAngles(float baseAngle, float rearArmAngle, float frontArmAngle, float duration) throws IOException {
-//    def _moveArmToAngles(self, baseAngle, rearArmAngle, frontArmAngle, duration):
-//    self._baseAngle = baseAngle
-//    self._rearAngle = rearArmAngle
-//    self._frontAngle = frontArmAngle
-//    dur = float(duration)
-//
-    int baseStepLocation = (int) (baseAngle * baseActualStepsPerRevolution / piTwo);
-    int rearArmStepLocation = (int) (rearArmAngle * rearArmActualStepsPerRevolution / piTwo);
-    int frontArmStepLocation = (int) (frontArmAngle * frontArmActualStepsPerRevolution / piTwo);
-//
-//		self._debug("Base Step Location", baseStepLocation)
-//            self._debug("Rear Arm Step Location", rearArmStepLocation)
-//            self._debug("Frontarm Step Location", frontArmStepLocation)
-//
-    float  baseDiff = baseStepLocation - baseSteps;
-    float rearDiff = rearArmStepLocation - rearSteps;
-    float frontDiff = frontArmStepLocation - frontSteps;
-//		self._debug(""baseDiff"", baseDiff)
-//            self._debug(""rearDiff"", rearDiff)
-//            self._debug(""frontDiff"", frontDiff)
-//
-    baseSteps = baseStepLocation;
-    rearSteps = rearArmStepLocation;
-    frontSteps = frontArmStepLocation;
-//
-int baseDir = 1;
-int rearDir = 1;
-int frontDir = 1;
-if (baseDiff < 1)
-    baseDir = 0;
-if (rearDiff < 1)
-    rearDir = 0;
-if (frontDiff > 1)
-    frontDir = 0;
-//
-// int baseSliced = sliceStepsToValues(abs(baseDiff), dur);
-// int rearSliced = sliceStepsToValues(abs(rearDiff), dur);
-//int frontSliced = _sliceStepsToValues(abs(frontDiff), dur);
-//
-//            for base, rear, front in zip(baseSliced, rearSliced, frontSliced):
-//    ret = [0, 0]
-//            // If ret[0] == 0 then command timed out or crc failed.
-//			// If ret[1] == 0 then command queue was full.
-//			while ret[0] == 0 or ret[1] == 0:
+        //    def _moveArmToAngles(self, baseAngle, rearArmAngle, frontArmAngle, duration):
+        //    self._baseAngle = baseAngle
+        //    self._rearAngle = rearArmAngle
+        //    self._frontAngle = frontArmAngle
+        //    dur = float(duration)
+        //
+            int baseStepLocation = (int) (baseAngle * baseActualStepsPerRevolution / piTwo);
+            int rearArmStepLocation = (int) (rearArmAngle * rearArmActualStepsPerRevolution / piTwo);
+            int frontArmStepLocation = (int) (frontArmAngle * frontArmActualStepsPerRevolution / piTwo);
+        //
+        //		self._debug("Base Step Location", baseStepLocation)
+        //            self._debug("Rear Arm Step Location", rearArmStepLocation)
+        //            self._debug("Frontarm Step Location", frontArmStepLocation)
+        //
+            float baseDiff = baseStepLocation - baseSteps;
+            float rearDiff = rearArmStepLocation - rearSteps;
+            float frontDiff = frontArmStepLocation - frontSteps;
+        //		self._debug(""baseDiff"", baseDiff)
+        //            self._debug(""rearDiff"", rearDiff)
+        //            self._debug(""frontDiff"", frontDiff)
+        //
+            baseSteps = baseStepLocation;
+            rearSteps = rearArmStepLocation;
+            frontSteps = frontArmStepLocation;
+        //
+        int baseDir = 1;
+        int rearDir = 1;
+        int frontDir = 1;
+        if (baseDiff < 1)
+            baseDir = 0;
+        if (rearDiff < 1)
+            rearDir = 0;
+        if (frontDiff > 1)
+            frontDir = 0;
+        //
+        // int baseSliced = sliceStepsToValues(abs(baseDiff), dur);
+        // int rearSliced = sliceStepsToValues(abs(rearDiff), dur);
+        //int frontSliced = _sliceStepsToValues(abs(frontDiff), dur);
+        //
+        //            for base, rear, front in zip(baseSliced, rearSliced, frontSliced):
+        //    ret = [0, 0]
+        //            // If ret[0] == 0 then command timed out or crc failed.
+        //			// If ret[1] == 0 then command queue was full.
+        //			while ret[0] == 0 or ret[1] == 0:
 
         int slices=200;
-        for(int i=0;i<slices;i++) {
+        float restBase=0;
+        float restRear=0;
+        float restFront=0;
+
+        for(int i=0;i<slices;i++){
+            CmdVal base = driver.stepsToCmdValFloat(Math.abs(baseDiff) / slices + restBase);
+            restBase=base.leftOver;
+            CmdVal rear = driver.stepsToCmdValFloat(Math.abs(rearDiff) / slices + restRear);
+            restRear=rear.leftOver;
+            CmdVal front = driver.stepsToCmdValFloat(Math.abs(frontDiff) / slices + restFront);
+            restFront=front.leftOver;
             while (true) {
-                int basecmd=driver.stepsToCmdValFloat(Math.abs(baseDiff)/slices).cmd;
-                int rearcmd=driver.stepsToCmdValFloat(Math.abs(rearDiff)/slices).cmd;
-                int frontcmd=driver.stepsToCmdValFloat(Math.abs(frontDiff)/slices).cmd;
-                byte ret = driver.steps(basecmd, rearcmd, frontcmd, baseDir, rearDir, frontDir,
+                byte ret = driver.steps(base.cmd, rear.cmd, front.cmd, baseDir, rearDir, frontDir,
                         (short) gripper, (short) toolRotation);
                 if (ret == 1)
                     break;
@@ -517,17 +525,17 @@ if (frontDiff > 1)
     }
 
     public void calibrate() throws IOException {
+        baseSteps=0;
         moveArmToAngles(0, 0.2f, 0.2f,5);
         driver.calibrateJoint(1,
-                freqToCmdVal(1500),
-                freqToCmdVal(1500),
+                freqToCmdVal(500),
+                freqToCmdVal(500),
                 0,
                 0,
                 0,
                 0);
-        baseSteps = (float) ((1.48f / piTwo) * baseActualStepsPerRevolution +0.5);
+        baseSteps = (float) ((Settings.baseCalibration/ piTwo) * baseActualStepsPerRevolution +0.5);
         moveArmToAngles(0, 0.2f, 0.2f,5);
-        moveWithSpeed(250,0,150,20,5,0);
     }
 
 }
