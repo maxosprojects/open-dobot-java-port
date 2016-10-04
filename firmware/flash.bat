@@ -1,0 +1,1 @@
+avrdude.exe -C"C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf"  -patmega2560 -cwiring -Pcom3 -b115200 -D -Uflash:w:C:\projects\omilab\RobotDevice\firmware\dobot-fpga.hex:i
