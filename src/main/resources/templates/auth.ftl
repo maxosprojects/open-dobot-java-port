@@ -1,7 +1,12 @@
 <!--<script type="text/javascript" src="${staticpath}/js/jquery-3.1.0.min.js"></script>-->
 <!--<link rel="stylesheet" type="text/css" href="${staticpath}/css/bootstrap.css" />-->
-
-
+<style>
+.mybutton {
+    width: 140px !important;
+    text-align: left;
+    margin-bottom:2px;
+}
+</style>
 <div class="panel panel-default">
   <div class="panel-body">
 <div id="wrapper">
@@ -16,18 +21,19 @@ tokens: "${authToken}"
             </#if>
             <form method="post">
                 <#list slots as key, value>
-                    <div class="row">
-                        <button type="submit" name="action" value=${key}
-                            <#if !(value??)> class="btn btn-secondary"
-                            <#elseif value.userName==userName> class="btn btn-primary"
-                            <#else> class="btn btn-secondary" disabled
-                            </#if>
-                        >${(key/2)?floor}:${(key%2*30)}
-                        <#if (value??)>"${value.userName}"
-                        <#else>(free)
+                    <button type="submit" name="action" value=${key}
+                        <#if !(value??)> class="btn btn-secondary mybutton"
+                        <#elseif value.userName==userName> class="btn btn-primary mybutton"
+                        <#else> class="btn btn-secondary" disabled
                         </#if>
-                        </button>
-                    </div>
+                    >${(key/2)?floor?string["00"]}:${(key%2*30)?string["00"]}
+                    <#if (value??)>"${value.userName}"
+                    <#else>(free)
+                    </#if>
+                    </button>
+                    <#if (key?index)%4==3>
+                    <br/>
+                    </#if>
                 </#list>
             </form>
         </div>
