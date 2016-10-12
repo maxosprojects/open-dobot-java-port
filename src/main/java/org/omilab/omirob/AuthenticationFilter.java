@@ -63,7 +63,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         HashMap<Integer, Slot> slots = SlotDao.getSlots();
         for(Slot s:slots.values()){
             int which=zonedDateTime.getHour()*2+zonedDateTime.getMinute()/30;
-            if(s.which==which&&token.contains(s.secret)){
+            if(s.which==which&&token.contains(s.secret)){  //TODO: split and use MessageDigest.isEqual()
                 logger.info("VALID: "+ s.getUserName());
                 return;
             }
