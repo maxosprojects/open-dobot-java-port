@@ -150,6 +150,34 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.omilab.omirob.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <!-- put your configurations here -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -157,31 +185,8 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <!--<compilerArgs>-->
-                        <!--<arg>-parameters</arg>-->
-                    <!--</compilerArgs>-->
                 </configuration>
             </plugin>
-    <!--<plugin>-->
-        <!--<groupId>org.codehaus.mojo</groupId>-->
-        <!--<artifactId>exec-maven-plugin</artifactId>-->
-        <!--<executions>-->
-            <!--<execution>-->
-                <!--<id>generateArduinoCode</id>-->
-                <!--<phase>compile</phase>-->
-                <!--<goals>-->
-                    <!--<goal>java</goal>-->
-                <!--</goals>-->
-
-            <!--</execution>-->
-        <!--</executions>-->
-        <!--<configuration>-->
-            <!--<mainClass>org.omilab.omirob.tinyrpc.codegen.ArduinoCodeGen</mainClass>-->
-            <!--<arguments>-->
-                <!--<argument>${project.build.directory}/generated-sources/Arduino/</argument>-->
-            <!--</arguments>-->
-        <!--</configuration>-->
-    <!--</plugin>-->
             <plugin>
                 <executions>
                     <execution>
@@ -194,7 +199,6 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.5.0</version>
                 <configuration>
-
                     <mainClass>org.omilab.omirob.Main</mainClass>
                 </configuration>
             </plugin>
