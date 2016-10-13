@@ -27,7 +27,7 @@ public class SlotDao {
             for(Slot s: slots.values()){
                 writer.write(String.valueOf(s.which));
                 writer.write(" ");
-                writer.write(s.userName);
+                writer.write(java.net.URLEncoder.encode(s.userName, "UTF-8"));
                 writer.write(" ");
                 writer.write(s.secret);
                 writer.write("\r\n");
@@ -49,7 +49,7 @@ public class SlotDao {
                 while (s.hasNext()) {
                     Slot slot = new Slot();
                     slot.which = s.nextInt();
-                    slot.userName = s.next();
+                    slot.userName = java.net.URLDecoder.decode(s.next(), "UTF-8");
                     slot.secret = s.next();
                     slots.put(slot.which, slot);
                     s.nextLine();

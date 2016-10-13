@@ -47,10 +47,10 @@ public final class PSMConnectorView {
 												final @PathParam("instanceid") Long instanceid,
 												final @PathParam("endpoint") String endpoint,
 												final @Context HttpServletRequest servletRequest) {
-		if("auth".equals(endpoint)){
+		if(endpoint.startsWith("arm-auth")){
 			return auth(servletRequest, request);
 		}
-		else if("control".equals(endpoint))
+		else if(endpoint.startsWith("arm-control"))
 			return control(servletRequest, request);
 		return new GenericServiceContent("unknown endpoint");
 	}
