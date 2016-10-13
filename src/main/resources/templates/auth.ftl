@@ -24,7 +24,7 @@ tokens: "${authToken}"
                     <button type="submit" name="action" value=${key}
                         <#if !(value??)> class="btn btn-secondary mybutton"
                         <#elseif value.userName==userName> class="btn btn-primary mybutton"
-                        <#else> class="btn btn-secondary" disabled
+                        <#else> class="btn btn-secondary mybutton" disabled
                         </#if>
                     >${(key/2)?floor?string["00"]}:${(key%2*30)?string["00"]}
                     <#if (value??)>"${value.userName}"

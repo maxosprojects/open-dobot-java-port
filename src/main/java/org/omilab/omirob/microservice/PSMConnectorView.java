@@ -18,6 +18,9 @@ import javax.ws.rs.core.Context;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Path("/view")
@@ -88,7 +91,15 @@ public final class PSMConnectorView {
 					vals.put("method","post");
 					int slotNumber = Integer.parseInt(button);
 					Slot slot = slots.get(slotNumber);
-					if (slot == null) {
+
+					final ZoneId zoneId = ZoneId.of("Europe/Vienna");
+					final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.now(), zoneId);
+					int currentHour=zonedDateTime.getHour();
+					int currentMinute=zonedDateTime.getMinute();
+					if(currentHour*2+currentMinute/30>slotNumber){
+						//Dont update past Slots
+					}
+					else if (slot == null) {
 						slot = new Slot();
 						slot.userName = request.getUsername();
 						slot.which = slotNumber;

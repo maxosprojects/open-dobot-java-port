@@ -122,8 +122,6 @@ public class Service {
             logger.warn("Sequence error", e);
             e.printStackTrace();
         }
-
-        System.out.println(seq);
         return Response.ok("").build();
 }
 
